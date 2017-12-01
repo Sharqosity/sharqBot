@@ -1,0 +1,207 @@
+package sharqBot.Music;
+
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.managers.AudioManager;
+import sharqBot.Main;
+
+import java.util.ArrayList;
+
+public class PlayerControl extends ListenerAdapter {
+    private AudioPlayer player;
+    private AudioPlayerManager playerManager;
+    private TrackScheduler trackScheduler;
+
+    private ArrayList<Guild> currentGuilds = new ArrayList<>();
+
+    public PlayerControl() {
+        playerManager = new DefaultAudioPlayerManager();
+        player = playerManager.createPlayer();
+        trackScheduler = new TrackScheduler(player);
+        player.addListener(trackScheduler);
+        player.setVolume(100);
+    }
+
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        Channel channelLeft = event.getChannelLeft();
+        if (channelLeft.getMembers().size() == 0) {
+            for (Guild g : currentGuilds) {
+                if (g == event.getGuild()) {
+                    g.getAudioManager().closeAudioConnection();
+                    currentGuilds.remove(g);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.TEXT)) {
+            return;
+        }
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
+        Message message = event.getMessage();
+        String content = message.getRawContent();
+
+        String[] command;
+
+        command = content.split(" ");
+
+        if (Main.isMuntTTSIsOn()) {
+            if ((command[0].equalsIgnoreCase("!MTS"))) {
+
+                Guild guild = event.getGuild();
+                currentGuilds.add(guild);
+                VoiceChannel vc = event.getMember().getVoiceState().getChannel();
+                if (vc == null) {
+                    event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
+                    return;
+                }
+                AudioManager manager = guild.getAudioManager();
+                manager.setSendingHandler(new PlayerSendHandler(player));
+
+                AudioSourceManagers.registerLocalSource(playerManager);
+
+                manager.openAudioConnection(vc);
+
+                for (int i = 1; i < command.length; i++) {
+                    final String[] finalCommand = command;
+
+                    final int eye = i;
+                    playerManager.loadItemOrdered(manager, "./src/muntDict/" + command[eye] + ".mp3", new AudioLoadResultHandler() {
+                        @Override
+                        public void trackLoaded(AudioTrack audioTrack) {
+                            trackScheduler.queue(audioTrack);
+
+                        }
+
+                        @Override
+                        public void playlistLoaded(AudioPlaylist audioPlaylist) {
+
+                        }
+
+                        @Override
+                        public void noMatches() {
+                            event.getChannel().sendMessage("Invalid word: " + finalCommand[eye]).queue();
+                        }
+
+                        @Override
+                        public void loadFailed(FriendlyException e) {
+                            event.getChannel().sendMessage("Load failed on word: " + finalCommand[eye]).queue();
+                            e.printStackTrace();
+
+                        }
+                    });
+
+                }
+                return;
+            }
+        }
+
+        if (content.startsWith("!")) {
+            Guild guild = event.getGuild();
+            currentGuilds.add(guild);
+            VoiceChannel vc = event.getMember().getVoiceState().getChannel();
+            if (vc == null) {
+                event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
+                return;
+            }
+
+            AudioManager manager = guild.getAudioManager();
+            manager.setSendingHandler(new PlayerSendHandler(player));
+
+            AudioSourceManagers.registerLocalSource(playerManager);
+
+            String fileName = content.substring(1, content.length());
+            playerManager.loadItem("./src/resources/" + fileName + ".mp3", new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    manager.openAudioConnection(vc);
+                    trackScheduler.playNow(track);
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    for (AudioTrack track : playlist.getTracks()) {
+                        trackScheduler.queue(track);
+                    }
+                }
+
+                @Override
+                public void noMatches() {
+                    // Notify the user that we've got nothing
+                    event.getChannel().sendMessage("No matches found!").queue();
+
+                }
+
+                @Override
+                public void loadFailed(FriendlyException throwable) {
+                    // Notify the user that everything exploded
+                    System.out.println(throwable.getMessage());
+                }
+            });
+
+        } else {
+            command = content.split(" ");
+
+            if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("play")) {
+                Guild guild = event.getGuild();
+                currentGuilds.add(guild);
+                VoiceChannel vc = event.getMember().getVoiceState().getChannel();
+                if (vc == null) {
+                    event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
+                    return;
+                }
+                AudioManager manager = guild.getAudioManager();
+                manager.setSendingHandler(new PlayerSendHandler(player));
+
+                AudioSourceManagers.registerRemoteSources(playerManager);
+
+                playerManager.loadItem(command[2], new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack track) {
+                        event.getChannel().sendMessage("Track loaded!").queue();
+                        manager.openAudioConnection(vc);
+                        trackScheduler.playNow(track);
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist playlist) {
+                        event.getChannel().sendMessage("Playlist loaded!").queue();
+
+                        for (AudioTrack track : playlist.getTracks()) {
+                            trackScheduler.queue(track);
+                        }
+                    }
+
+                    @Override
+                    public void noMatches() {
+                        // Notify the user that we've got nothing
+                        event.getChannel().sendMessage("No matches found!").queue();
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException throwable) {
+                        // Notify the user that everything exploded
+                        event.getChannel().sendMessage("Load failed!").queue();
+                        System.out.println(throwable.getMessage());
+                    }
+                });
+            }
+        }
+    }
+}
