@@ -1,5 +1,5 @@
 # sharqBot
-Discord bot
+discord bot
 
 
 
