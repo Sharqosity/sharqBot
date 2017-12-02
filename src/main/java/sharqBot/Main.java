@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import sharqBot.Message.Listener;
 import sharqBot.Music.PlayerControl;
 import sharqBot.Pickup.PickupListener;
@@ -47,10 +48,18 @@ public class Main {
         }
 
         JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
+        jdaBuilder.setReconnectQueue(new SessionReconnectQueue());
+
         jdaBuilder.setToken(token);
         jdaBuilder.addEventListener(new Listener());
         jdaBuilder.addEventListener(new PlayerControl());
         jdaBuilder.addEventListener(new PickupListener());
-        JDA api = jdaBuilder.buildBlocking();
+
+        jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+        Thread.sleep(5000);
+        jdaBuilder.useSharding(1, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+
+
+//        JDA api = jdaBuilder.buildBlocking();
     }
 }

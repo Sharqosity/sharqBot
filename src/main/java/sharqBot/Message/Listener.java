@@ -83,9 +83,9 @@ public class Listener extends ListenerAdapter {
                 pickupReply.setDescription("|");
 //                pickupReply.setColor(Color.decode("#CEEEEB"));
                 pickupReply.setColor(Color.decode("#3EB97E"));
-                pickupReply.addField("@SharqBot add", "Add yourself to csgo pickup queue (WIP)", false);
-                pickupReply.addField("@SharqBot remove", "Remove yourself from csgo pickup queue (WIP)", false);
-                pickupReply.addField("@SharqBot who", "Displays csgo pickup queue (WIP)", false);
+                pickupReply.addField("@SharqBot add", "Add yourself to csgo pickup queue", false);
+                pickupReply.addField("@SharqBot remove", "Remove yourself from csgo pickup queue", false);
+                pickupReply.addField("@SharqBot who", "Displays csgo pickup queue", false);
                 channel.sendMessage(pickupReply.build()).queue();
 
             } else if (command[1].equalsIgnoreCase("tylerisbored")) {

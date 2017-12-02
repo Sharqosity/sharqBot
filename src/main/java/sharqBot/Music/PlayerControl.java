@@ -15,18 +15,26 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
 import sharqBot.Main;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class PlayerControl extends ListenerAdapter {
-    private AudioPlayer player;
-    private AudioPlayerManager playerManager;
-    private TrackScheduler trackScheduler;
+    //    private AudioPlayer player;
+    private final AudioPlayerManager playerManager;
+    private final Map<String, GuildManager> musicManagers;
+//    private TrackScheduler trackScheduler;
+
+    private final int DEFAULT_VOLUME = 75;
 
 
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
-        player = playerManager.createPlayer();
-        trackScheduler = new TrackScheduler(player);
-        player.addListener(trackScheduler);
-        player.setVolume(100);
+//        player = playerManager.createPlayer();
+//        trackScheduler = new TrackScheduler(player);
+//        player.addListener(trackScheduler);
+//        player.setVolume(100);
+        musicManagers = new HashMap<String, GuildManager>();
     }
 
     @Override
@@ -37,7 +45,6 @@ public class PlayerControl extends ListenerAdapter {
         }
     }
 
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (!event.isFromType(ChannelType.TEXT)) {
@@ -47,6 +54,11 @@ public class PlayerControl extends ListenerAdapter {
             return;
         }
 
+        Guild guild = event.getGuild();
+        GuildManager guildManager = getMusicManager(guild);
+        AudioPlayer player = guildManager.player;
+        TrackScheduler trackScheduler = guildManager.trackScheduler;
+
         Message message = event.getMessage();
         String content = message.getRawContent();
 
@@ -55,16 +67,13 @@ public class PlayerControl extends ListenerAdapter {
         command = content.split(" ");
 
         if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("leave")) {
-            Guild guild = event.getGuild();
+            guild.getAudioManager().setSendingHandler(null);
             guild.getAudioManager().closeAudioConnection();
-            event.getChannel().sendMessage("cunt").queue();
-
         }
 
         if (Main.isMuntTTSIsOn()) {
             if ((command[0].equalsIgnoreCase("!MTS"))) {
 
-                Guild guild = event.getGuild();
                 VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                 if (vc == null) {
                     event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
@@ -75,7 +84,9 @@ public class PlayerControl extends ListenerAdapter {
 
                 AudioSourceManagers.registerLocalSource(playerManager);
 
-                manager.openAudioConnection(vc);
+
+                guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
+                guild.getAudioManager().openAudioConnection(vc);
 
                 for (int i = 1; i < command.length; i++) {
                     final String[] finalCommand = command;
@@ -85,7 +96,6 @@ public class PlayerControl extends ListenerAdapter {
                         @Override
                         public void trackLoaded(AudioTrack audioTrack) {
                             trackScheduler.queue(audioTrack);
-
                         }
 
                         @Override
@@ -110,28 +120,32 @@ public class PlayerControl extends ListenerAdapter {
                 return;
             }
         } else {
-            event.getChannel().sendMessage("Munt TTS is currently off, please get someone sensible to enable it").queue();
-            return;
+            if (command[0].equalsIgnoreCase("!MTS")) {
+                event.getChannel().sendMessage("Munt TTS is currently off, please get someone sensible to enable it").queue();
+                return;
+            }
         }
 
         if (content.startsWith("!")) {
-            Guild guild = event.getGuild();
+
             VoiceChannel vc = event.getMember().getVoiceState().getChannel();
             if (vc == null) {
                 event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
                 return;
             }
 
-            AudioManager manager = guild.getAudioManager();
-            manager.setSendingHandler(new PlayerSendHandler(player));
+//            AudioManager manager = guild.getAudioManager();
+//            manager.setSendingHandler(new PlayerSendHandler(player));
 
             AudioSourceManagers.registerLocalSource(playerManager);
+
+            guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
+            guild.getAudioManager().openAudioConnection(vc);
 
             String fileName = content.substring(1, content.length());
             playerManager.loadItem("./src/resources/" + fileName + ".mp3", new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    manager.openAudioConnection(vc);
                     trackScheduler.playNow(track);
                 }
 
@@ -160,14 +174,17 @@ public class PlayerControl extends ListenerAdapter {
             command = content.split(" ");
 
             if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("play")) {
-                Guild guild = event.getGuild();
+
                 VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                 if (vc == null) {
                     event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
                     return;
                 }
-                AudioManager manager = guild.getAudioManager();
-                manager.setSendingHandler(new PlayerSendHandler(player));
+//                AudioManager manager = guild.getAudioManager();
+//                manager.setSendingHandler(new PlayerSendHandler(player));
+
+                guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
+                guild.getAudioManager().openAudioConnection(vc);
 
                 AudioSourceManagers.registerRemoteSources(playerManager);
 
@@ -175,7 +192,6 @@ public class PlayerControl extends ListenerAdapter {
                     @Override
                     public void trackLoaded(AudioTrack track) {
                         event.getChannel().sendMessage("Track loaded!").queue();
-                        manager.openAudioConnection(vc);
                         trackScheduler.playNow(track);
                     }
 
@@ -203,5 +219,21 @@ public class PlayerControl extends ListenerAdapter {
                 });
             }
         }
+    }
+
+    private GuildManager getMusicManager(Guild guild) {
+        String guildId = guild.getId();
+        GuildManager mng = musicManagers.get(guildId);
+        if (mng == null) {
+            synchronized (musicManagers) {
+                mng = musicManagers.get(guildId);
+                if (mng == null) {
+                    mng = new GuildManager(playerManager);
+                    mng.player.setVolume(DEFAULT_VOLUME);
+                    musicManagers.put(guildId, mng);
+                }
+            }
+        }
+        return mng;
     }
 }
