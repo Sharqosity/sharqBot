@@ -25,7 +25,7 @@ public class Listener extends ListenerAdapter {
 //    public void onUserTyping(UserTypingEvent event) {
 //        if (event.getUser().getId().equals("251168250023378944")) {
 //            MessageChannel channel = event.getChannel();
-//            channel.sendMessage("shut up andy").queue();
+//            channel.sendMessage("shut the fuck up andy").queue();
 //        }
 //    }
 
@@ -78,7 +78,6 @@ public class Listener extends ListenerAdapter {
                 musicReply.addField("@SharqBot mtts", "Enables/disables MountTTS. sensible people only", false);
                 channel.sendMessage(musicReply.build()).queue();
 
-
                 EmbedBuilder pickupReply = new EmbedBuilder();
                 pickupReply.setTitle("Pickup Commands");
                 pickupReply.setDescription("|");
@@ -96,22 +95,20 @@ public class Listener extends ListenerAdapter {
                 //sharq, munt
                 if (message.getAuthor().getId().equals("95641408530026496") || message.getAuthor().getId().equals("167835741093756928")) {
                     Main.setMuntTTSIsOn(!Main.isMuntTTSIsOn());
-                    message.getAuthor().openPrivateChannel().queue((privateChannel -> {
-                        privateChannel.sendMessage("mtts: " + Main.isMuntTTSIsOn()).queue();
-                    }));
+                    message.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("mtts: " + Main.isMuntTTSIsOn()).queue()));
                 }
 
             } else if (command[1].equalsIgnoreCase("dictionary")) {
-                String list = "";
+                StringBuilder list = new StringBuilder();
                 File folder = new File("./src/muntDict");
                 File[] listOfFiles = folder.listFiles();
                 assert listOfFiles != null;
                 for (File f : listOfFiles) {
                     if (f.isFile()) {
-                        list += f.getName().substring(0, f.getName().length() - 4) + "\n";
+                        list.append(f.getName().substring(0, f.getName().length() - 4)).append("\n");
                     }
                 }
-                channel.sendMessage(list).queue();
+                channel.sendMessage(list.toString()).queue();
 
             } else if (command[1].equalsIgnoreCase("cointoss") && ((command[2].equalsIgnoreCase("heads")) || (command[2].equalsIgnoreCase("tails")))) {
                 if (message.getAuthor().getId().equals("95641408530026496")) {
@@ -130,7 +127,7 @@ public class Listener extends ListenerAdapter {
 
             } else if (command[1].equalsIgnoreCase("servers")) {
                 ArrayList<Server> serverList = new ArrayList<>();
-                URL syncoreSite = null;
+                URL syncoreSite;
                 try {
                     syncoreSite = new URL("https://reflex.syncore.org/api/servers");
                 } catch (MalformedURLException e) {
@@ -138,8 +135,8 @@ public class Listener extends ListenerAdapter {
                     e.printStackTrace();
                     return;
                 }
-                BufferedReader in = null;
-                String inputLine = null;
+                BufferedReader in;
+                String inputLine;
                 try {
                     in = new BufferedReader(new InputStreamReader(syncoreSite.openStream()));
                     inputLine = in.readLine();

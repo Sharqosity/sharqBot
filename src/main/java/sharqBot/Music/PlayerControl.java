@@ -15,14 +15,11 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
 import sharqBot.Main;
 
-import java.util.ArrayList;
-
 public class PlayerControl extends ListenerAdapter {
     private AudioPlayer player;
     private AudioPlayerManager playerManager;
     private TrackScheduler trackScheduler;
 
-    private ArrayList<Guild> currentGuilds = new ArrayList<>();
 
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
@@ -35,15 +32,11 @@ public class PlayerControl extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         Channel channelLeft = event.getChannelLeft();
-        if (channelLeft.getMembers().size() == 0) {
-            for (Guild g : currentGuilds) {
-                if (g == event.getGuild()) {
-                    g.getAudioManager().closeAudioConnection();
-                    currentGuilds.remove(g);
-                }
-            }
+        if (channelLeft.getMembers().size() <= 1) {
+            event.getGuild().getAudioManager().closeAudioConnection();
         }
     }
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -61,11 +54,17 @@ public class PlayerControl extends ListenerAdapter {
 
         command = content.split(" ");
 
+        if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("leave")) {
+            Guild guild = event.getGuild();
+            guild.getAudioManager().closeAudioConnection();
+            event.getChannel().sendMessage("cunt").queue();
+
+        }
+
         if (Main.isMuntTTSIsOn()) {
             if ((command[0].equalsIgnoreCase("!MTS"))) {
 
                 Guild guild = event.getGuild();
-                currentGuilds.add(guild);
                 VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                 if (vc == null) {
                     event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
@@ -110,11 +109,13 @@ public class PlayerControl extends ListenerAdapter {
                 }
                 return;
             }
+        } else {
+            event.getChannel().sendMessage("Munt TTS is currently off, please get someone sensible to enable it").queue();
+            return;
         }
 
         if (content.startsWith("!")) {
             Guild guild = event.getGuild();
-            currentGuilds.add(guild);
             VoiceChannel vc = event.getMember().getVoiceState().getChannel();
             if (vc == null) {
                 event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
@@ -160,7 +161,6 @@ public class PlayerControl extends ListenerAdapter {
 
             if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("play")) {
                 Guild guild = event.getGuild();
-                currentGuilds.add(guild);
                 VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                 if (vc == null) {
                     event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
