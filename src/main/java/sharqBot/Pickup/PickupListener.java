@@ -1,7 +1,9 @@
 package sharqBot.Pickup;
 
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.HashMap;
@@ -10,9 +12,10 @@ import java.util.Map;
 public class PickupListener extends ListenerAdapter {
 
     private final Map<String, GuildQueue> guildQueues;
+//    private MessageChannel lastChannel;
 
     public PickupListener() {
-        guildQueues = new HashMap<String, GuildQueue>();
+        guildQueues = new HashMap<>();
     }
 
     @Override
@@ -40,45 +43,64 @@ public class PickupListener extends ListenerAdapter {
 
             if (command[1].equalsIgnoreCase("add")) {
 
-                if (guildQueue.getQueue().contains(event.getMember().getUser())) {
-                    channel.sendMessage("You are already added!").queue();
+                if (command.length < 3) {
+                    channel.sendMessage("Please specify a mode!").queue();
                 } else {
-                    guildQueue.add(event.getMember().getUser());
-                    channel.sendMessage("Added! (" + guildQueue.playerAmount() + "/" + guildQueue.getMaxPlayers() + ")").queue();
+                    guildQueue.add(event.getMember().getUser(), command[2], channel);
 
                 }
 
-                if (guildQueue.getQueue().size() == guildQueue.getMaxPlayers()) {
-                    StringBuilder success = new StringBuilder();
-                    success.append("Pickup started! ");
-                    for (User u : guildQueue.getQueue()) {
-                        success.append("<@").append(u.getId()).append(">, ");
-                    }
-                    success.append("go play");
-                    channel.sendMessage(success.toString()).queue();
-                    guildQueue.clear();
-                }
 
             } else if (command[1].equalsIgnoreCase("remove")) {
-                guildQueue.remove(event.getMember().getUser());
-                channel.sendMessage("Queue: (" + guildQueue.playerAmount() + "/" + guildQueue.getMaxPlayers() + ")").queue();
+                if (command.length < 3) {
+
+                    if (guildQueue.remove(event.getMember().getUser())) {
+                        guildQueue.who(channel);
+                    } else {
+                        channel.sendMessage("You are not in any queues!").queue();
+                    }
+
+//                    guildQueue.remove(event.getMember().getUser(),channel);
+                } else {
+                    guildQueue.remove(event.getMember().getUser(), command[2], channel);
+                }
 
 
             } else if (command[1].equalsIgnoreCase("who")) {
-                StringBuilder who = new StringBuilder("Current players in queue ");
-                who.append("(").append(guildQueue.playerAmount()).append("/").append(guildQueue.getMaxPlayers()).append("): ");
-                String[] names = guildQueue.getNames();
-                for (int i = 0; i < names.length; i++) {
-                    who.append(names[i]);
-                    if (i != names.length - 1) {
-                        who.append(", ");
-                    }
+                if (command.length < 3) {
+                    guildQueue.who(channel);
+                } else {
+                    guildQueue.who(command[2], channel);
                 }
-                channel.sendMessage(who.toString()).queue();
 
             }
         }
     }
+
+
+    @Override
+    public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
+        Guild guild = event.getGuild();
+        GuildQueue guildQueue = getGuildQueue(guild);
+        User user = event.getUser();
+        if (event.getGuild().getMember(user).getOnlineStatus() == OnlineStatus.OFFLINE) {
+
+            if (guildQueue.remove(user)) {
+                guildQueue.getLastChannel().sendMessage(user.getName() + " went offline and was removed from all pickups!").queue();
+
+            }
+
+//            guildQueue.removeOffline(user);
+        }
+
+//        for (User u: guildQueue.getCsgoQueue()) {
+//            if (u == event.getUser()) {
+//                //TODO: lastChannel may be incorrect when a newer user adds in a different channel - need to get channel that original user added in
+//                guildQueue.remove(u,lastChannel);
+//            }
+//        }
+    }
+
 
     private GuildQueue getGuildQueue(Guild guild) {
         String guildId = guild.getId();

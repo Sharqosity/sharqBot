@@ -16,20 +16,20 @@ import net.dv8tion.jda.core.managers.AudioManager;
 import sharqBot.Main;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class PlayerControl extends ListenerAdapter {
     private final AudioPlayerManager playerManager;
     private final Map<String, GuildManager> musicManagers;
 
+    //TODO volume function
     private final int DEFAULT_VOLUME = 75;
 
 
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
 
-        musicManagers = new HashMap<String, GuildManager>();
+        musicManagers = new HashMap<>();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class PlayerControl extends ListenerAdapter {
                 @Override
                 public void noMatches() {
                     // Notify the user that we've got nothing
-                    event.getChannel().sendMessage("No matches found!").queue();
+//                    event.getChannel().sendMessage("No matches found!").queue();
 
                 }
 
