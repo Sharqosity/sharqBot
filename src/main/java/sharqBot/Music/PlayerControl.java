@@ -20,20 +20,15 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerControl extends ListenerAdapter {
-    //    private AudioPlayer player;
     private final AudioPlayerManager playerManager;
     private final Map<String, GuildManager> musicManagers;
-//    private TrackScheduler trackScheduler;
 
     private final int DEFAULT_VOLUME = 75;
 
 
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
-//        player = playerManager.createPlayer();
-//        trackScheduler = new TrackScheduler(player);
-//        player.addListener(trackScheduler);
-//        player.setVolume(100);
+
         musicManagers = new HashMap<String, GuildManager>();
     }
 
@@ -134,9 +129,6 @@ public class PlayerControl extends ListenerAdapter {
                 return;
             }
 
-//            AudioManager manager = guild.getAudioManager();
-//            manager.setSendingHandler(new PlayerSendHandler(player));
-
             AudioSourceManagers.registerLocalSource(playerManager);
 
             guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
@@ -180,8 +172,6 @@ public class PlayerControl extends ListenerAdapter {
                     event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
                     return;
                 }
-//                AudioManager manager = guild.getAudioManager();
-//                manager.setSendingHandler(new PlayerSendHandler(player));
 
                 guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
                 guild.getAudioManager().openAudioConnection(vc);

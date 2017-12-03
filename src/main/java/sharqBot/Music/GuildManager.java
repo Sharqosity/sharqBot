@@ -17,6 +17,4 @@ class GuildManager {
         sendHandler = new PlayerSendHandler(player);
         player.addListener(trackScheduler);
     }
-
-
 }

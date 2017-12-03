@@ -56,7 +56,6 @@ public class Listener extends ListenerAdapter {
                 EmbedBuilder messageReply = new EmbedBuilder();
                 messageReply.setTitle("Message Commands");
                 messageReply.setDescription("|");
-//                messageReply.setColor(Color.decode("#244047"));
                 messageReply.setColor(Color.decode("#F5CA40"));
                 messageReply.addField("@SharqBot ping", "Checks if the bot is online", false);
                 messageReply.addField("@SharqBot help", "sends help", false);
@@ -69,7 +68,6 @@ public class Listener extends ListenerAdapter {
                 EmbedBuilder musicReply = new EmbedBuilder();
                 musicReply.setTitle("Music/Audio Commands");
                 musicReply.setDescription("|");
-//                musicReply.setColor(Color.decode("#75bdc6"));
                 musicReply.setColor(Color.decode("#CA2E47"));
                 musicReply.addField("!filename", "Plays .mp3 file with given name from sharq's local folder", false);
                 musicReply.addField("@SharqBot play <link>", "Plays a song from youtube", false);
@@ -81,7 +79,6 @@ public class Listener extends ListenerAdapter {
                 EmbedBuilder pickupReply = new EmbedBuilder();
                 pickupReply.setTitle("Pickup Commands");
                 pickupReply.setDescription("|");
-//                pickupReply.setColor(Color.decode("#CEEEEB"));
                 pickupReply.setColor(Color.decode("#3EB97E"));
                 pickupReply.addField("@SharqBot add", "Add yourself to csgo pickup queue", false);
                 pickupReply.addField("@SharqBot remove", "Remove yourself from csgo pickup queue", false);

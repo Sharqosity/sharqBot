@@ -10,7 +10,7 @@
 <br />
 <br />
   
-######Directory  
+Directory  
 ```
 sharqBot/
 ├── src/

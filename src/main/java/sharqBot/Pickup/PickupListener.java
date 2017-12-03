@@ -39,8 +39,14 @@ public class PickupListener extends ListenerAdapter {
             MessageChannel channel = event.getChannel();
 
             if (command[1].equalsIgnoreCase("add")) {
-                guildQueue.add(event.getMember().getUser());
-                channel.sendMessage("Added! (" + guildQueue.playerAmount() + "/" + guildQueue.getMaxPlayers() + ")").queue();
+
+                if (guildQueue.getQueue().contains(event.getMember().getUser())) {
+                    channel.sendMessage("You are already added!").queue();
+                } else {
+                    guildQueue.add(event.getMember().getUser());
+                    channel.sendMessage("Added! (" + guildQueue.playerAmount() + "/" + guildQueue.getMaxPlayers() + ")").queue();
+
+                }
 
                 if (guildQueue.getQueue().size() == guildQueue.getMaxPlayers()) {
                     StringBuilder success = new StringBuilder();
