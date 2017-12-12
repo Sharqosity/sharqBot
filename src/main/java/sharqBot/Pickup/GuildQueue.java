@@ -6,12 +6,9 @@ import net.dv8tion.jda.core.entities.User;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class GuildQueue {
-    private static final int CSGO_MAX_PLAYERS = 5;
-    private static final int WINGMAN_MAX_PLAYERS = 2;
+class GuildQueue {
 
     private MessageChannel lastChannel;
-
 
     private ArrayList<Mode> guildModes = new ArrayList<>();
 
@@ -22,8 +19,7 @@ public class GuildQueue {
 
     }
 
-
-    public void add(User user, String mode, MessageChannel channel) {
+    void add(User user, String mode, MessageChannel channel) {
 
         for (Mode m : guildModes) {
             if (mode.equalsIgnoreCase(m.getName())) {
@@ -32,6 +28,8 @@ public class GuildQueue {
                 } else {
                     m.getQueue().add(user);
                     channel.sendMessage("Added! " + m.getName() + ": (" + m.getQueue().size() + "/" + m.getMaxPlayers() + ")").queue();
+
+                    //TODO: lastChannel may be incorrect when a newer user adds in a different channel - need to get channel that original user added in
                     lastChannel = channel;
 
                 }
@@ -53,14 +51,13 @@ public class GuildQueue {
         }
         channel.sendMessage("Invalid mode!").queue();
 
-
     }
 
-    public MessageChannel getLastChannel() {
+    MessageChannel getLastChannel() {
         return lastChannel;
     }
 
-    public boolean remove(User user) {
+    boolean remove(User user) {
         boolean removed = false;
         for (Mode m : guildModes) {
             Iterator<User> iterator = m.getQueue().iterator();
@@ -72,27 +69,13 @@ public class GuildQueue {
                 }
             }
 
-//            for (User u : m.getQueue()) {
-//                if(u == user) {
-//                    m.getQueue().remove(user);
-//                    removed = true;
-//                }
-//            }
 
         }
         return removed;
     }
 
-//    public void remove(User user ,MessageChannel channel) {
-//        if (remove(user)) {
-//            who(lastChannel);
-//        } else {
-//            lastChannel.sendMessage("You are not in any queues!").queue();
-//        }
-//
-//    }
 
-    public void remove(User user, String mode, MessageChannel channel) {
+    void remove(User user, String mode, MessageChannel channel) {
 
         boolean gotACorrectModeName = false;
         for (Mode m : guildModes) {
@@ -115,17 +98,8 @@ public class GuildQueue {
 
     }
 
-//    public void removeOffline(User user) {
-//
-//        if(remove(user)) {
-//            lastChannel.sendMessage(user.getName() + " went offline and was removed from all pickups!").queue();
-//        }
-//
-//    }
 
-
-    public void who(String mode, MessageChannel channel) {
-
+    void who(String mode, MessageChannel channel) {
 
         for (Mode m : guildModes) {
             if (mode.equalsIgnoreCase(m.getName())) {
@@ -148,7 +122,7 @@ public class GuildQueue {
 
     }
 
-    public void who(MessageChannel channel) {
+    void who(MessageChannel channel) {
         StringBuilder who = new StringBuilder("Current players in queue ");
 
         for (Mode m : guildModes) {

@@ -12,7 +12,6 @@ import java.util.Map;
 public class PickupListener extends ListenerAdapter {
 
     private final Map<String, GuildQueue> guildQueues;
-//    private MessageChannel lastChannel;
 
     public PickupListener() {
         guildQueues = new HashMap<>();
@@ -90,15 +89,8 @@ public class PickupListener extends ListenerAdapter {
 
             }
 
-//            guildQueue.removeOffline(user);
         }
 
-//        for (User u: guildQueue.getCsgoQueue()) {
-//            if (u == event.getUser()) {
-//                //TODO: lastChannel may be incorrect when a newer user adds in a different channel - need to get channel that original user added in
-//                guildQueue.remove(u,lastChannel);
-//            }
-//        }
     }
 
 

@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.User;
 
 import java.util.ArrayList;
 
-public class Mode {
+class Mode {
 
 
     private final int MAX_PLAYERS;
@@ -19,15 +19,15 @@ public class Mode {
         NAME = name;
     }
 
-    public int getMaxPlayers() {
+    int getMaxPlayers() {
         return MAX_PLAYERS;
     }
 
-    public String getName() {
+    String getName() {
         return NAME;
     }
 
-    public ArrayList<User> getQueue() {
+    ArrayList<User> getQueue() {
         return queue;
     }
 

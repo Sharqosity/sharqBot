@@ -21,14 +21,6 @@ import java.util.ArrayList;
 
 public class Listener extends ListenerAdapter {
 
-//    @Override
-//    public void onUserTyping(UserTypingEvent event) {
-//        if (event.getUser().getId().equals("251168250023378944")) {
-//            MessageChannel channel = event.getChannel();
-//            channel.sendMessage("shut the fuck up andy").queue();
-//        }
-//    }
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
@@ -89,7 +81,6 @@ public class Listener extends ListenerAdapter {
                 channel.sendMessage("<@95641408530026496> <@103549948867387392> <@137705421786972162> <@167835741093756928> wannna hop in?").queue();
 
             } else if (command[1].equalsIgnoreCase("mtts")) {
-                //sharq, munt
                 if (message.getAuthor().getId().equals("95641408530026496") || message.getAuthor().getId().equals("167835741093756928")) {
                     Main.setMuntTTSIsOn(!Main.isMuntTTSIsOn());
                     message.getAuthor().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage("mtts: " + Main.isMuntTTSIsOn()).queue()));
@@ -128,7 +119,7 @@ public class Listener extends ListenerAdapter {
                 try {
                     syncoreSite = new URL("https://reflex.syncore.org/api/servers");
                 } catch (MalformedURLException e) {
-                    channel.sendMessage("I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/api/servers").queue();
+                    channel.sendMessage("I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/").queue();
                     e.printStackTrace();
                     return;
                 }
@@ -138,7 +129,7 @@ public class Listener extends ListenerAdapter {
                     in = new BufferedReader(new InputStreamReader(syncoreSite.openStream()));
                     inputLine = in.readLine();
                 } catch (IOException e) {
-                    channel.sendMessage("I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/api/servers").queue();
+                    channel.sendMessage("I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/").queue();
                     e.printStackTrace();
                     return;
                 }
@@ -181,4 +172,12 @@ public class Listener extends ListenerAdapter {
             }
         }
     }
+
+    //    @Override
+//    public void onUserTyping(UserTypingEvent event) {
+//        if (event.getUser().getId().equals("251168250023378944")) {
+//            MessageChannel channel = event.getChannel();
+//            channel.sendMessage("shut the fuck up andy").queue();
+//        }
+//    }
 }

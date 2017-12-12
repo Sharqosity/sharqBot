@@ -21,15 +21,18 @@ import java.util.Map;
 public class PlayerControl extends ListenerAdapter {
     private final AudioPlayerManager playerManager;
     private final Map<String, GuildManager> musicManagers;
+    private final Map<User, MessageChannel> lastChannels;
+
 
     //TODO volume function
     private final int DEFAULT_VOLUME = 75;
+    private int volume = 50;
 
 
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
-
         musicManagers = new HashMap<>();
+        lastChannels = new HashMap<>();
     }
 
     @Override
@@ -79,7 +82,6 @@ public class PlayerControl extends ListenerAdapter {
 
                 AudioSourceManagers.registerLocalSource(playerManager);
 
-
                 guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
                 guild.getAudioManager().openAudioConnection(vc);
 
@@ -121,6 +123,7 @@ public class PlayerControl extends ListenerAdapter {
             }
         }
 
+
         if (content.startsWith("!")) {
 
             VoiceChannel vc = event.getMember().getVoiceState().getChannel();
@@ -132,12 +135,12 @@ public class PlayerControl extends ListenerAdapter {
             AudioSourceManagers.registerLocalSource(playerManager);
 
             guild.getAudioManager().setSendingHandler(guildManager.sendHandler);
-            guild.getAudioManager().openAudioConnection(vc);
 
             String fileName = content.substring(1, content.length());
             playerManager.loadItem("./src/resources/" + fileName + ".mp3", new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
+                    guild.getAudioManager().openAudioConnection(vc);
                     trackScheduler.playNow(track);
                 }
 
@@ -210,6 +213,7 @@ public class PlayerControl extends ListenerAdapter {
             }
         }
     }
+
 
     private GuildManager getMusicManager(Guild guild) {
         String guildId = guild.getId();
