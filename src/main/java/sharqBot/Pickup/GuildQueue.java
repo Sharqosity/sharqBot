@@ -12,11 +12,13 @@ class GuildQueue {
 
 
     GuildQueue() {
+        //TODO read from a file
         guildModes.add(new Mode("CSGO", 5));
         guildModes.add(new Mode("Wingman", 2));
 
     }
 
+    //start with string
     void start(String string, MessageChannel channel) {
         for (Mode m : guildModes) {
             if (string.equalsIgnoreCase(m.getName())) {
@@ -28,7 +30,8 @@ class GuildQueue {
 
     }
 
-    void start(Mode mode, MessageChannel channel) {
+    //start without string
+    private void start(Mode mode, MessageChannel channel) {
 
         StringBuilder success = new StringBuilder();
         success.append(mode.getName()).append(" pickup started! ");

@@ -126,7 +126,7 @@ public class PlayerControl extends ListenerAdapter {
 
             VoiceChannel vc = event.getMember().getVoiceState().getChannel();
             if (vc == null) {
-                event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
+//                event.getChannel().sendMessage("You must be in a voice channel to use this command!").queue();
                 return;
             }
 
@@ -166,7 +166,7 @@ public class PlayerControl extends ListenerAdapter {
         } else {
             command = content.split(" ");
 
-            if (command[0].equals("<@384172837218287616>") && command[1].equalsIgnoreCase("play")) {
+            if (command[0].equals("<@384172837218287616>") && (command[1].equalsIgnoreCase("play") || (command[1].equalsIgnoreCase("queue")))) {
 
                 VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                 if (vc == null) {
@@ -179,11 +179,17 @@ public class PlayerControl extends ListenerAdapter {
 
                 AudioSourceManagers.registerRemoteSources(playerManager);
 
+                final String commandString = command[1];
+
                 playerManager.loadItem(command[2], new AudioLoadResultHandler() {
                     @Override
                     public void trackLoaded(AudioTrack track) {
                         event.getChannel().sendMessage("Track loaded!").queue();
-                        trackScheduler.playNow(track);
+                        if(commandString.equalsIgnoreCase("play")) {
+                            trackScheduler.playNow(track);
+                        } else if (commandString.equalsIgnoreCase("queue")) {
+                            trackScheduler.queue(track);
+                        }
                     }
 
                     @Override
