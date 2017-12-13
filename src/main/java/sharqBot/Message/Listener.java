@@ -62,7 +62,9 @@ public class Listener extends ListenerAdapter {
                 musicReply.setDescription("|");
                 musicReply.setColor(Color.decode("#CA2E47"));
                 musicReply.addField("!filename", "Plays .mp3 file with given name from sharq's local folder", false);
-                musicReply.addField("@SharqBot play <link>", "Plays a song from youtube", false);
+                musicReply.addField("@SharqBot files", "Lists files available to use with !filename command", false);
+                musicReply.addField("@SharqBot play <link>", "Plays a song from youtube, ovverides queue", false);
+                musicReply.addField("@SharqBot queue <link>", "Adds a youtube video to the queue", false);
                 musicReply.addField("!mts <type your sentence in words>", "Mount text to speech", false);
                 musicReply.addField("@SharqBot dictionary", "Lists MountTTS vocabulary", false);
                 musicReply.addField("@SharqBot mtts", "Enables/disables MountTTS. sensible people only", false);
@@ -72,9 +74,10 @@ public class Listener extends ListenerAdapter {
                 pickupReply.setTitle("Pickup Commands");
                 pickupReply.setDescription("|");
                 pickupReply.setColor(Color.decode("#3EB97E"));
-                pickupReply.addField("@SharqBot add", "Add yourself to csgo pickup queue", false);
-                pickupReply.addField("@SharqBot remove", "Remove yourself from csgo pickup queue", false);
+                pickupReply.addField("@SharqBot add <mode>", "Add yourself to csgo pickup queue", false);
+                pickupReply.addField("@SharqBot remove <mode>", "Remove yourself from csgo pickup queue", false);
                 pickupReply.addField("@SharqBot who", "Displays csgo pickup queue", false);
+                pickupReply.addField("@SharqBot start <mode>", "Starts pickup in case you don't want to wait for it to fill up", false);
                 channel.sendMessage(pickupReply.build()).queue();
 
             } else if (command[1].equalsIgnoreCase("tylerisbored")) {

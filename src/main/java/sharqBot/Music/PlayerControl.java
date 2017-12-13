@@ -90,7 +90,12 @@ public class PlayerControl extends ListenerAdapter {
                     playerManager.loadItemOrdered(manager, "./src/muntDict/" + command[eye] + ".mp3", new AudioLoadResultHandler() {
                         @Override
                         public void trackLoaded(AudioTrack audioTrack) {
-                            trackScheduler.queue(audioTrack);
+                            if(eye == 1) {
+                                trackScheduler.playNow(audioTrack);
+                            } else {
+                                trackScheduler.queue(audioTrack);
+
+                            }
                         }
 
                         @Override
