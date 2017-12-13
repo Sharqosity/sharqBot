@@ -93,12 +93,26 @@ public class Listener extends ListenerAdapter {
                 assert listOfFiles != null;
                 for (File f : listOfFiles) {
                     if (f.isFile()) {
+                        //-4 to remove the .mp3 file extension
                         list.append(f.getName().substring(0, f.getName().length() - 4)).append("\n");
                     }
                 }
                 channel.sendMessage(list.toString()).queue();
 
-            } else if (command[1].equalsIgnoreCase("cointoss") && ((command[2].equalsIgnoreCase("heads")) || (command[2].equalsIgnoreCase("tails")))) {
+            } else if (command[1].equalsIgnoreCase("files")) {
+                StringBuilder list = new StringBuilder();
+                File folder = new File("./src/resources");
+                File[] listOfFiles = folder.listFiles();
+                assert listOfFiles != null;
+                for (File f : listOfFiles) {
+                    if (f.isFile()) {
+                        list.append(f.getName().substring(0, f.getName().length()/*-4*/)).append("\n");
+                    }
+                }
+                channel.sendMessage(list.toString()).queue();
+            }
+
+            else if (command[1].equalsIgnoreCase("cointoss") && ((command[2].equalsIgnoreCase("heads")) || (command[2].equalsIgnoreCase("tails")))) {
                 if (message.getAuthor().getId().equals("95641408530026496")) {
                     if (command[2].equalsIgnoreCase("heads")) {
                         channel.sendMessage("Coin toss result is: heads!").queue();
