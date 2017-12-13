@@ -12,9 +12,12 @@ import java.util.Map;
 public class PickupListener extends ListenerAdapter {
 
     private final Map<String, GuildQueue> guildQueues;
+    private final Map<User, MessageChannel> lastChannels;
+
 
     public PickupListener() {
         guildQueues = new HashMap<>();
+        lastChannels = new HashMap<>();
     }
 
     @Override
@@ -46,7 +49,7 @@ public class PickupListener extends ListenerAdapter {
                     channel.sendMessage("Please specify a mode!").queue();
                 } else {
                     guildQueue.add(event.getMember().getUser(), command[2], channel);
-
+                    lastChannels.put(event.getMember().getUser(), channel);
                 }
 
 
@@ -55,6 +58,8 @@ public class PickupListener extends ListenerAdapter {
 
                     if (guildQueue.remove(event.getMember().getUser())) {
                         guildQueue.who(channel);
+                        lastChannels.remove(event.getMember().getUser(), channel);
+
                     } else {
                         channel.sendMessage("You are not in any queues!").queue();
                     }
@@ -72,6 +77,12 @@ public class PickupListener extends ListenerAdapter {
                     guildQueue.who(command[2], channel);
                 }
 
+            } else if (command[1].equalsIgnoreCase("start")) {
+                if (command.length < 3) {
+                    channel.sendMessage("Please specify a mode!").queue();
+                } else {
+                    guildQueue.start(command[2],channel);
+                }
             }
         }
     }
@@ -85,7 +96,9 @@ public class PickupListener extends ListenerAdapter {
         if (event.getGuild().getMember(user).getOnlineStatus() == OnlineStatus.OFFLINE) {
 
             if (guildQueue.remove(user)) {
-                guildQueue.getLastChannel().sendMessage(user.getName() + " went offline and was removed from all pickups!").queue();
+                lastChannels.get(user).sendMessage(user.getName() + " went offline and was removed from all pickups!").queue();
+                lastChannels.remove(user);
+//                guildQueue.getLastChannel().sendMessage(user.getName() + " went offline and was removed from all pickups!").queue();
 
             }
 

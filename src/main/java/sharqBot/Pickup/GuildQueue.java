@@ -8,8 +8,6 @@ import java.util.Iterator;
 
 class GuildQueue {
 
-    private MessageChannel lastChannel;
-
     private ArrayList<Mode> guildModes = new ArrayList<>();
 
 
@@ -17,6 +15,29 @@ class GuildQueue {
         guildModes.add(new Mode("CSGO", 5));
         guildModes.add(new Mode("Wingman", 2));
 
+    }
+
+    void start(String string, MessageChannel channel) {
+        for (Mode m : guildModes) {
+            if (string.equalsIgnoreCase(m.getName())) {
+                start(m,channel);
+                return;
+            }
+        }
+        channel.sendMessage("Invalid mode!").queue();
+
+    }
+
+    void start(Mode mode, MessageChannel channel) {
+
+        StringBuilder success = new StringBuilder();
+        success.append(mode.getName()).append(" pickup started! ");
+        for (User u : mode.getQueue()) {
+            success.append("<@").append(u.getId()).append(">, ");
+        }
+        success.append("go play");
+        channel.sendMessage(success.toString()).queue();
+        mode.getQueue().clear();
     }
 
     void add(User user, String mode, MessageChannel channel) {
@@ -29,20 +50,11 @@ class GuildQueue {
                     m.getQueue().add(user);
                     channel.sendMessage("Added! " + m.getName() + ": (" + m.getQueue().size() + "/" + m.getMaxPlayers() + ")").queue();
 
-                    //TODO: lastChannel may be incorrect when a newer user adds in a different channel - need to get channel that original user added in
-                    lastChannel = channel;
 
                 }
 
                 if (m.getQueue().size() == m.getMaxPlayers()) {
-                    StringBuilder success = new StringBuilder();
-                    success.append(m.getName()).append(" pickup started! ");
-                    for (User u : m.getQueue()) {
-                        success.append("<@").append(u.getId()).append(">, ");
-                    }
-                    success.append("go play");
-                    channel.sendMessage(success.toString()).queue();
-                    m.getQueue().clear();
+                    start(m,channel);
                 }
                 return;
 
@@ -53,9 +65,6 @@ class GuildQueue {
 
     }
 
-    MessageChannel getLastChannel() {
-        return lastChannel;
-    }
 
     boolean remove(User user) {
         boolean removed = false;
@@ -98,9 +107,8 @@ class GuildQueue {
 
     }
 
-
+    //who command with mode given
     void who(String mode, MessageChannel channel) {
-
         for (Mode m : guildModes) {
             if (mode.equalsIgnoreCase(m.getName())) {
                 StringBuilder who = new StringBuilder("Current players in " + m.getName() + " queue ");
@@ -122,6 +130,7 @@ class GuildQueue {
 
     }
 
+    //who command without mode given
     void who(MessageChannel channel) {
         StringBuilder who = new StringBuilder("Current players in queue ");
 

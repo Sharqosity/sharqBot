@@ -21,7 +21,6 @@ import java.util.Map;
 public class PlayerControl extends ListenerAdapter {
     private final AudioPlayerManager playerManager;
     private final Map<String, GuildManager> musicManagers;
-    private final Map<User, MessageChannel> lastChannels;
 
 
     //TODO volume function
@@ -32,7 +31,6 @@ public class PlayerControl extends ListenerAdapter {
     public PlayerControl() {
         playerManager = new DefaultAudioPlayerManager();
         musicManagers = new HashMap<>();
-        lastChannels = new HashMap<>();
     }
 
     @Override
