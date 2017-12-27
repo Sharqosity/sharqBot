@@ -52,7 +52,7 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("@SharqBot ping", "Checks if the bot is online", false);
                 messageReply.addField("@SharqBot help", "sends help", false);
                 messageReply.addField("@SharqBot servers", "Lists public Reflex servers with players", false);
-                messageReply.addField("@SharqBot coinflip <heads,tails>", "Flips a coin (not rigged)", false);
+                messageReply.addField("@SharqBot coinflip <heads/tails>", "Flips a coin (not rigged)", false);
                 messageReply.addField("@SharqBot tylerisbored", "For Tyler. wanna hop in?", false);
 //                messageReply.addField("","",true);
                 channel.sendMessage(messageReply.build()).queue();
@@ -63,7 +63,7 @@ public class Listener extends ListenerAdapter {
                 musicReply.setColor(Color.decode("#CA2E47"));
                 musicReply.addField("!filename", "Plays .mp3 file with given name from sharq's local folder", false);
                 musicReply.addField("@SharqBot files", "Lists files available to use with !filename command", false);
-                musicReply.addField("@SharqBot play <link>", "Plays a song from youtube, ovverides queue", false);
+                musicReply.addField("@SharqBot play <link>", "Plays a song from youtube, overrides queue", false);
                 musicReply.addField("@SharqBot queue <link>", "Adds a youtube video to the queue", false);
                 musicReply.addField("!mts <type your sentence in words>", "Mount text to speech", false);
                 musicReply.addField("@SharqBot dictionary", "Lists MountTTS vocabulary", false);
@@ -74,15 +74,17 @@ public class Listener extends ListenerAdapter {
                 pickupReply.setTitle("Pickup Commands");
                 pickupReply.setDescription("|");
                 pickupReply.setColor(Color.decode("#3EB97E"));
-                pickupReply.addField("@SharqBot add <mode>", "Add yourself to csgo pickup queue", false);
-                pickupReply.addField("@SharqBot remove <mode>", "Remove yourself from csgo pickup queue", false);
-                pickupReply.addField("@SharqBot who", "Displays csgo pickup queue", false);
+                pickupReply.addField("@SharqBot add <mode>", "Add yourself to pickup queue for specified mode", false);
+                pickupReply.addField("@SharqBot remove <mode>", "Remove yourself from specified pickup queue", false);
+                pickupReply.addField("@SharqBot who", "Displays status of current queues.", false);
                 pickupReply.addField("@SharqBot start <mode>", "Starts pickup in case you don't want to wait for it to fill up", false);
                 channel.sendMessage(pickupReply.build()).queue();
 
             } else if (command[1].equalsIgnoreCase("tylerisbored")) {
-                channel.sendMessage("<@95641408530026496> <@103549948867387392> <@137705421786972162> <@167835741093756928> wannna hop in?").queue();
+                channel.sendMessage("<@240620731958820864> <@95641408530026496> <@103549948867387392> <@137705421786972162> <@167835741093756928> wannna hop in?").queue();
 
+            } else if (command[1].equalsIgnoreCase("dotasquad")) {
+                channel.sendMessage("<@95641408530026496> <@137705421786972162> <@170613427893567488>, time to feed!").queue();
             } else if (command[1].equalsIgnoreCase("mtts")) {
                 if (message.getAuthor().getId().equals("95641408530026496") || message.getAuthor().getId().equals("167835741093756928")) {
                     Main.setMuntTTSIsOn(!Main.isMuntTTSIsOn());
@@ -109,7 +111,8 @@ public class Listener extends ListenerAdapter {
                 assert listOfFiles != null;
                 for (File f : listOfFiles) {
                     if (f.isFile()) {
-                        list.append(f.getName().substring(0, f.getName().length()/*-4*/)).append("\n");
+                        //-4 to remove the .mp3 file extension
+                        list.append(f.getName().substring(0, f.getName().length() - 4)).append("\n");
                     }
                 }
                 channel.sendMessage(list.toString()).queue();

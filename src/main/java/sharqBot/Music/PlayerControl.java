@@ -156,14 +156,12 @@ public class PlayerControl extends ListenerAdapter {
 
                 @Override
                 public void noMatches() {
-                    // Notify the user that we've got nothing
 //                    event.getChannel().sendMessage("No matches found!").queue();
 
                 }
 
                 @Override
                 public void loadFailed(FriendlyException throwable) {
-                    // Notify the user that everything exploded
                     System.out.println(throwable.getMessage());
                 }
             });
@@ -208,13 +206,11 @@ public class PlayerControl extends ListenerAdapter {
 
                     @Override
                     public void noMatches() {
-                        // Notify the user that we've got nothing
                         event.getChannel().sendMessage("No matches found!").queue();
                     }
 
                     @Override
                     public void loadFailed(FriendlyException throwable) {
-                        // Notify the user that everything exploded
                         event.getChannel().sendMessage("Load failed!").queue();
                         System.out.println(throwable.getMessage());
                     }

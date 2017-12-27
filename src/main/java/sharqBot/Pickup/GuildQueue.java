@@ -10,7 +10,6 @@ class GuildQueue {
 
     private ArrayList<Mode> guildModes = new ArrayList<>();
 
-
     GuildQueue() {
         //TODO read from a file
         guildModes.add(new Mode("CSGO", 5));
@@ -53,7 +52,6 @@ class GuildQueue {
                     m.getQueue().add(user);
                     channel.sendMessage("Added! " + m.getName() + ": (" + m.getQueue().size() + "/" + m.getMaxPlayers() + ")").queue();
 
-
                 }
 
                 if (m.getQueue().size() == m.getMaxPlayers()) {
@@ -68,7 +66,6 @@ class GuildQueue {
 
     }
 
-
     boolean remove(User user) {
         boolean removed = false;
         for (Mode m : guildModes) {
@@ -81,11 +78,9 @@ class GuildQueue {
                 }
             }
 
-
         }
         return removed;
     }
-
 
     void remove(User user, String mode, MessageChannel channel) {
 
@@ -114,8 +109,8 @@ class GuildQueue {
     void who(String mode, MessageChannel channel) {
         for (Mode m : guildModes) {
             if (mode.equalsIgnoreCase(m.getName())) {
-                StringBuilder who = new StringBuilder("Current players in " + m.getName() + " queue ");
-                who.append("(").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append("): ");
+                StringBuilder who = new StringBuilder("Current players in " + m.getName() + " queue: ");
+                who.append("(").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append(") ");
                 String[] names = getNames(m);
                 for (int i = 0; i < names.length; i++) {
                     who.append(names[i]);
@@ -139,7 +134,7 @@ class GuildQueue {
 
         for (Mode m : guildModes) {
             who.append(m.getName());
-            who.append(" (").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append("): ");
+            who.append(": (").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append(") ");
             String[] names = getNames(m);
             for (int i = 0; i < names.length; i++) {
                 who.append(names[i]);

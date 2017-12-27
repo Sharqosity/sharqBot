@@ -6,13 +6,9 @@ import java.util.ArrayList;
 
 class Mode {
 
-
     private final int MAX_PLAYERS;
-
     private final String NAME;
-
     private ArrayList<User> queue = new ArrayList<>();
-
 
     Mode(String name, int maxPlayers) {
         MAX_PLAYERS = maxPlayers;
@@ -30,10 +26,5 @@ class Mode {
     ArrayList<User> getQueue() {
         return queue;
     }
-
-    public void setQueue(ArrayList<User> queue) {
-        this.queue = queue;
-    }
-
 
 }
