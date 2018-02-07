@@ -6,8 +6,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import sharqBot.Message.Listener;
-import sharqBot.Music.PlayerControl;
-import sharqBot.Pickup.PickupListener;
 
 import javax.security.auth.login.LoginException;
 import java.io.BufferedReader;
@@ -16,15 +14,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Main {
-    private static boolean muntTTSIsOn = false;
-
-    public static boolean isMuntTTSIsOn() {
-        return muntTTSIsOn;
-    }
-
-    public static void setMuntTTSIsOn(boolean b) {
-        muntTTSIsOn = b;
-    }
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         FileReader in = null;
@@ -51,8 +40,7 @@ public class Main {
 
         jdaBuilder.setToken(token);
         jdaBuilder.addEventListener(new Listener());
-        jdaBuilder.addEventListener(new PlayerControl());
-        jdaBuilder.addEventListener(new PickupListener());
+//        jdaBuilder.addEventListener(new PickupListener());
 
         jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
         Thread.sleep(5000);
