@@ -133,7 +133,12 @@ public class Listener extends ListenerAdapter {
                     }
                 }
 
-            } else if (command[1].equalsIgnoreCase("servers")) {
+            } else if (command[1].equalsIgnoreCase("servers") || command[1].equalsIgnoreCase("sushiservers")) {
+                boolean sushi = false;
+                if (command[1].equalsIgnoreCase("sushiservers")) {
+                    sushi = true;
+                }
+
                 ArrayList<Server> serverList = new ArrayList<>();
                 URL syncoreSite;
                 try {
@@ -161,6 +166,9 @@ public class Listener extends ListenerAdapter {
                     JSONObject info = server.getJSONObject("info");
                     if (info.getInt("players") > 0 && info.getInt("private") == 0) {
 
+                        String version = info.getString("serverVersion");
+
+
                         String address = server.getString("address");
                         String serverName = info.getString("serverName");
                         String map = info.getString("map");
@@ -168,9 +176,32 @@ public class Listener extends ListenerAdapter {
                         int players = info.getInt("players");
                         int maxPlayers = info.getInt("maxPlayers");
 
-                        Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers);
-                        serverList.add(serverObject);
+                        JSONArray playerList = server.getJSONArray("players");
+                        ArrayList<String> playerArray = new ArrayList<>();
+
+
+                        for (int j = 0; j < playerList.length(); j++) {
+
+                            playerArray.add(playerList.getJSONObject(j).getString("name"));
+
+                        }
+
+                        if(sushi) {
+                            if((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
+                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+                                serverList.add(serverObject);
+                            }
+                        } else {
+                            if(!version.equals("1.1.2expplus") || !version.equals("1.1.4expplus")) {
+                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+                                serverList.add(serverObject);
+                            }
+                        }
+
+
+
                     }
+
                 }
                 try {
                     in.close();
@@ -181,13 +212,7 @@ public class Listener extends ListenerAdapter {
                 if (serverList.isEmpty()) {
                     channel.sendMessage("No public servers with players :frowning:").queue();
                 } else {
-                    EmbedBuilder messageReply = new EmbedBuilder();
-                    messageReply.setTitle("Servers", "https://reflex.syncore.org/");
-                    messageReply.setColor(Color.RED);
-                    for (Server s : serverList) {
-                        messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
-                    }
-                    channel.sendMessage(messageReply.build()).queue();
+                    sendServerList(serverList, channel);
                 }
             }
         }
@@ -200,4 +225,20 @@ public class Listener extends ListenerAdapter {
 //            channel.sendMessage("shut the fuck up andy").queue();
 //        }
 //    }
+
+    private void sendServerList(ArrayList<Server> serverList, MessageChannel channel) {
+        EmbedBuilder messageReply = new EmbedBuilder();
+        messageReply.setTitle("Servers", "https://reflex.syncore.org/");
+        messageReply.setColor(Color.RED);
+        for (Server s : serverList) {
+            messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
+            String playerField = "";
+            for(String p : s.getPlayerList()) {
+                playerField += p + "\n";
+            }
+            messageReply.addField("Players: ",playerField,false);
+
+        }
+        channel.sendMessage(messageReply.build()).queue();
+    }
 }
