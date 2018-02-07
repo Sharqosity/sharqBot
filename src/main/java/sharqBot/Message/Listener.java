@@ -52,6 +52,7 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("@SharqBot ping", "Checks if the bot is online", false);
                 messageReply.addField("@SharqBot help", "sends help", false);
                 messageReply.addField("@SharqBot servers", "Lists public Reflex servers with players", false);
+                messageReply.addField("@SharqBot sushiservers", "Lists public Sushi ruleset servers with players", false);
                 messageReply.addField("@SharqBot coinflip <heads/tails>", "Flips a coin (not rigged)", false);
                 messageReply.addField("@SharqBot tylerisbored", "For Tyler. wanna hop in?", false);
 //                messageReply.addField("","",true);
