@@ -42,13 +42,13 @@ public class Listener extends ListenerAdapter {
 
                 EmbedBuilder messageReply = new EmbedBuilder();
                 messageReply.setTitle("Message Commands");
-                messageReply.setDescription("|");
+                messageReply.setDescription("");
                 messageReply.setColor(Color.decode("#F5CA40"));
                 messageReply.addField("!ping", "Checks if the bot is online", false);
                 messageReply.addField("!help", "sends help", false);
                 messageReply.addField("!servers", "Lists public Reflex servers with players", false);
                 messageReply.addField("!sushiservers", "Lists public Sushi ruleset servers with players", false);
-                messageReply.addField("!coinflip <heads/tails>", "Flips a coin (not rigged)", false);
+                messageReply.addField("!cointoss <heads/tails>", "Flips a coin (not rigged)", false);
 
 //                messageReply.addField("","",true);
                 channel.sendMessage(messageReply.build()).queue();
@@ -63,7 +63,7 @@ public class Listener extends ListenerAdapter {
 //                pickupReply.addField("@SharqBot start <mode>", "Starts pickup in case you don't want to wait for it to fill up", false);
 //                channel.sendMessage(pickupReply.build()).queue();
 
-            } else if (command[0].equalsIgnoreCase("cointoss") && ((command[1].equalsIgnoreCase("heads")) || (command[1].equalsIgnoreCase("tails")))) {
+            } else if (command[0].equalsIgnoreCase("!cointoss") && ((command[1].equalsIgnoreCase("heads")) || (command[1].equalsIgnoreCase("tails")))) {
                 if (message.getAuthor().getId().equals("95641408530026496")) {
                     if (command[1].equalsIgnoreCase("heads")) {
                         channel.sendMessage("Coin toss result is: heads!").queue();
@@ -78,9 +78,9 @@ public class Listener extends ListenerAdapter {
                     }
                 }
 
-            } else if (command[0].equalsIgnoreCase("servers") || command[1].equalsIgnoreCase("sushiservers")) {
+            } else if (command[0].equalsIgnoreCase("!servers") || command[0].equalsIgnoreCase("!sushiservers")) {
                 boolean sushi = false;
-                if (command[1].equalsIgnoreCase("sushiservers")) {
+                if (command[0].equalsIgnoreCase("!sushiservers")) {
                     sushi = true;
                 }
 
@@ -113,7 +113,6 @@ public class Listener extends ListenerAdapter {
 
                         String version = info.getString("serverVersion");
 
-
                         String address = server.getString("address");
                         String serverName = info.getString("serverName");
                         String map = info.getString("map");
@@ -124,7 +123,6 @@ public class Listener extends ListenerAdapter {
                         JSONArray playerList = server.getJSONArray("players");
                         ArrayList<String> playerArray = new ArrayList<>();
 
-
                         for (int j = 0; j < playerList.length(); j++) {
 
                             playerArray.add(playerList.getJSONObject(j).getString("name"));
@@ -132,7 +130,6 @@ public class Listener extends ListenerAdapter {
                         }
 
                         if(sushi) {
-                            System.out.println(version);
                             if((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
                                 Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
                                 serverList.add(serverObject);
@@ -143,11 +140,7 @@ public class Listener extends ListenerAdapter {
                                 serverList.add(serverObject);
                             }
                         }
-
-
-
                     }
-
                 }
                 try {
                     in.close();
@@ -163,13 +156,6 @@ public class Listener extends ListenerAdapter {
             }
         }
 
-    //    @Override
-//    public void onUserTyping(UserTypingEvent event) {
-//        if (event.getUser().getId().equals("251168250023378944")) {
-//            MessageChannel channel = event.getChannel();
-//            channel.sendMessage("shut the fuck up andy").queue();
-//        }
-//    }
 
     private void sendServerList(ArrayList<Server> serverList, MessageChannel channel) {
         EmbedBuilder messageReply = new EmbedBuilder();
@@ -177,11 +163,11 @@ public class Listener extends ListenerAdapter {
         messageReply.setColor(Color.RED);
         for (Server s : serverList) {
             messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
-            String playerField = "";
+            StringBuilder playerField = new StringBuilder();
             for(String p : s.getPlayerList()) {
-                playerField += p + "\n";
+                playerField.append(p).append("\n");
             }
-            messageReply.addField("Players: ",playerField,false);
+            messageReply.addField("Players: ", playerField.toString(),false);
 
         }
         channel.sendMessage(messageReply.build()).queue();
