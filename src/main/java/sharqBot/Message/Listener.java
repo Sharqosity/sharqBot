@@ -4,8 +4,10 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.managers.GuildController;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,7 +51,8 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("!servers", "Lists public Reflex servers with players", false);
                 messageReply.addField("!sushiservers", "Lists public Sushi ruleset servers with players", false);
                 messageReply.addField("!cointoss <heads/tails>", "Flips a coin (not rigged)", false);
-
+                messageReply.addField("!notify <NA/EU>", "Gives you pickup role", false);
+                messageReply.addField("!removerole <NA/EU>", "Removes pickup role", false);
 //                messageReply.addField("","",true);
                 channel.sendMessage(messageReply.build()).queue();
 
@@ -78,7 +81,35 @@ public class Listener extends ListenerAdapter {
                     }
                 }
 
-            } else if (command[0].equalsIgnoreCase("!servers") || command[0].equalsIgnoreCase("!sushiservers")) {
+            } else if (command[0].equalsIgnoreCase("!notify")) {
+                if(message.getGuild().getId().equals("407749422592819200")) {
+//                    Role NA = message.getGuild().getRolesByName("NA", true).get(0);
+                    Role NA = message.getGuild().getRoleById("411979598541225996");
+//                    Role EU = message.getGuild().getRolesByName("EU", true).get(0);
+                    Role EU = message.getGuild().getRoleById("408771458622291969");
+                    GuildController guildController = new GuildController(message.getGuild());
+
+                    if(command[1].equalsIgnoreCase("NA")) {
+                        guildController.addSingleRoleToMember(message.getMember(),NA).queue();
+                    } else if (command[1].equalsIgnoreCase("EU")) {
+                        guildController.addSingleRoleToMember(message.getMember(),EU).queue();
+                    }
+                }
+            } else if (command[0].equalsIgnoreCase("!removeRole")) {
+                if(message.getGuild().getId().equals("407749422592819200")) {
+                    Role NA = message.getGuild().getRoleById("411979598541225996");
+                    Role EU = message.getGuild().getRoleById("408771458622291969");
+                    GuildController guildController = new GuildController(message.getGuild());
+
+                    if(command[1].equalsIgnoreCase("NA")) {
+                        guildController.removeSingleRoleFromMember(message.getMember(), NA).queue();
+                    } else if (command[1].equalsIgnoreCase("EU")) {
+                        guildController.removeSingleRoleFromMember(message.getMember(), EU).queue();
+                    }
+                }
+            }
+
+            else if (command[0].equalsIgnoreCase("!servers") || command[0].equalsIgnoreCase("!sushiservers")) {
                 boolean sushi = false;
                 if (command[0].equalsIgnoreCase("!sushiservers")) {
                     sushi = true;
@@ -151,18 +182,26 @@ public class Listener extends ListenerAdapter {
                 if (serverList.isEmpty()) {
                     channel.sendMessage("No public servers with players :frowning:").queue();
                 } else {
-                    sendServerList(serverList, channel);
+                    sendServerList(serverList, channel, sushi);
                 }
             }
         }
 
 
-    private void sendServerList(ArrayList<Server> serverList, MessageChannel channel) {
+    private void sendServerList(ArrayList<Server> serverList, MessageChannel channel, boolean sushi) {
         EmbedBuilder messageReply = new EmbedBuilder();
         messageReply.setTitle("Servers", "https://reflex.syncore.org/");
         messageReply.setColor(Color.RED);
         for (Server s : serverList) {
-            messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
+
+            if(sushi) {
+                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + "  `connect " + s.getAddress() + "`", false);
+
+            } else {
+                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
+
+            }
+
             StringBuilder playerField = new StringBuilder();
             for(String p : s.getPlayerList()) {
                 playerField.append(p).append("\n");
