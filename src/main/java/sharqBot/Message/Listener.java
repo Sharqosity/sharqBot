@@ -44,7 +44,7 @@ public class Listener extends ListenerAdapter {
             EmbedBuilder messageReply = new EmbedBuilder();
             messageReply.setTitle("Message Commands");
             messageReply.setDescription("");
-            messageReply.setColor(Color.decode("#F5CA40"));
+            messageReply.setColor(Color.decode("#3EB97E"));
             messageReply.addField("!ping", "Checks if the bot is online", false);
             messageReply.addField("!help", "sends help", false);
             messageReply.addField("!servers", "Lists public Reflex servers with players", false);
@@ -58,7 +58,7 @@ public class Listener extends ListenerAdapter {
             EmbedBuilder sharqCoinReply = new EmbedBuilder();
             sharqCoinReply.setTitle("SharqCoin Commands");
             sharqCoinReply.setDescription("");
-            sharqCoinReply.setColor(Color.decode("#3EB97E"));
+            sharqCoinReply.setColor(Color.decode("#F5CA40"));
             sharqCoinReply.addField("!wallet", "View your current sharqcoin balance", false);
             sharqCoinReply.addField("!send <amount> @user <message>", "Send another user sharqcoin", false);
             sharqCoinReply.addField("!top5", "forbes list of top billionaires", false);
@@ -106,59 +106,43 @@ public class Listener extends ListenerAdapter {
                 assert userFound != null;
                 channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
 
-//                for (Emote e : message.getGuild().getEmotes()) {
-//                    System.out.println(e.getName() + ", " + e.getId());
-//                }
-//                org.json.simple.JSONObject foundUser = findUser(message.getAuthor().getId(), users);
-//                if (foundUser != null) {
-//                    channel.sendMessage("You have " + foundUser.get("amount") + "<sharqcoin:413865986211708950> in your wallet.").queue();
-//                } else {
-////                    channel.sendMessage("No wallet found! Create a new one with !createwallet").queue();
-//                    createWallet(message.getAuthor());
-//                }
 
             } catch (ParseException | IOException e) {
                 e.printStackTrace();
             }
 
         }
-//        else if (command[0].equalsIgnoreCase("!createwallet")) {
-//
-//        }
+
         else if (command[0].equalsIgnoreCase("!send")) {
 
             double sendAmount = Double.parseDouble(command[1]);
-//            int sendAmount = Integer.parseInt(command[1]);
 
             JSONParser parser = new JSONParser();
-//                org.json.simple.JSONObject sender = new org.json.simple.JSONObject();
 
 
             try {
-                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+                Object obj;
                 org.json.simple.JSONArray users;
 
 
                 createWallet(message.getAuthor());
-//                System.out.println(command[2].substring(2, command[2].length() - 1));
-                User recipient = message.getGuild().getMemberById(Long.parseLong(command[2].substring(2, command[2].length() - 1))).getUser();
-                createWallet(recipient);
 
-//                System.out.println(recipient.getName());
+                User recipient = (message.getMentionedUsers().get(0));
+                createWallet(recipient);
 
                 obj = parser.parse(new FileReader("./sharqcoin.json"));
                 users = (org.json.simple.JSONArray) obj;
 
                 org.json.simple.JSONObject userFound = findUser(message.getAuthor().getId(), users);
-
-                org.json.simple.JSONObject targetUser = findUser(command[2].substring(2, command[2].length() - 1), users);
+                org.json.simple.JSONObject targetUser = findUser(recipient.getId(), users);
 
                 assert userFound != null;
                 if (sendAmount > 0 && sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
                     channel.sendMessage("Insufficient funds!").queue();
                 } else {
-                    userFound.replace("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
-                    targetUser.replace("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
+                    userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
+                    assert targetUser != null;
+                    targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
 
                     if (command.length > 3) {
                         channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
@@ -175,47 +159,13 @@ public class Listener extends ListenerAdapter {
                 }
 
 
-//                if (userFound != null) {
-//
-//
-//                    org.json.simple.JSONObject targetUser = findUser(command[2].substring(2, command[2].length() - 1), users);
-//                    if (targetUser != null) {
-//                        if (sendAmount > Integer.parseInt(userFound.get("amount").toString())) {
-//                            channel.sendMessage("Insufficient funds!").queue();
-//                        } else {
-//                            userFound.put("amount", Integer.parseInt(userFound.get("amount").toString()) - sendAmount);
-//                            targetUser.put("amount", Integer.parseInt(targetUser.get("amount").toString()) + sendAmount);
-//
-//                            if (command[3] != null) {
-//                                channel.sendMessage(sendAmount + "<sharqcoin:413865986211708950> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
-//
-//                            } else {
-//                                channel.sendMessage(sendAmount + "<sharqcoin:413865986211708950> sent to " + targetUser.get("Name").toString() + ".").queue();
-//
-//                            }
-//
-//                            FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-//                            jsonFile.write(users.toString());
-//                            jsonFile.flush();
-//                            jsonFile.close();
-//                        }
-//                    } else {
-//                        channel.sendMessage("Recipient must have a sharqcoin wallet to recieve funds!").queue();
-//                    }
-//
-//
-//                } else {
-//                    channel.sendMessage("You must create a sharqcoin wallet to send funds!").queue();
-//
-//                }
-
-
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
 
 
-        } else if (message.getAuthor().getId().equalsIgnoreCase("")) {
+        } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup has started")) { //message sent by pubobot
+
 
         } else if (command[0].equalsIgnoreCase("!top5")) {
 
@@ -236,7 +186,7 @@ public class Listener extends ListenerAdapter {
 
                 EmbedBuilder sharqCoinReply = new EmbedBuilder();
                 sharqCoinReply.setTitle("Top 5 SharqCoin Net Worth");
-                sharqCoinReply.setDescription("");
+                sharqCoinReply.setDescription("<:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905>");
                 sharqCoinReply.setColor(Color.decode("#ffd700"));
 
 
@@ -375,9 +325,9 @@ public class Listener extends ListenerAdapter {
             org.json.simple.JSONObject existingUser = findUser(author.getId(), users);
             if (existingUser == null) {
                 org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
-                newUser.replace("Name", author.getName());
-                newUser.replace("id", author.getId());
-                newUser.replace("amount", 0.0);
+                newUser.put("Name", author.getName());
+                newUser.put("id", author.getId());
+                newUser.put("amount", 0.0);
                 users.add(newUser);
 
                 FileWriter jsonFile = new FileWriter("./sharqcoin.json");
@@ -385,7 +335,7 @@ public class Listener extends ListenerAdapter {
                 jsonFile.flush();
                 jsonFile.close();
             } else {
-                existingUser.replace("Name", author.getName());
+                existingUser.put("Name", author.getName());
                 FileWriter jsonFile = new FileWriter("./sharqcoin.json");
                 jsonFile.write(users.toString());
                 jsonFile.flush();
