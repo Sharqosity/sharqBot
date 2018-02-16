@@ -91,69 +91,52 @@ public class Listener extends ListenerAdapter {
 
         } else if (command[0].equalsIgnoreCase("!wallet")) {
 
-            JSONParser parser = new JSONParser();
 
-            try {
-                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-                org.json.simple.JSONArray users;
 
-                createWallet(message.getAuthor());
-                obj = parser.parse(new FileReader("./sharqcoin.json"));
-                users = (org.json.simple.JSONArray) obj;
 
-                org.json.simple.JSONObject userFound = findUser(message.getAuthor().getId(), users);
+                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
                 channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
 
 
-            } catch (ParseException | IOException e) {
-                e.printStackTrace();
-            }
 
-        }
-
-        else if (command[0].equalsIgnoreCase("!send")) {
+        } else if (command[0].equalsIgnoreCase("!send")) {
 
             double sendAmount = Double.parseDouble(command[1]);
 
-            JSONParser parser = new JSONParser();
-
-
             try {
-                Object obj;
-                org.json.simple.JSONArray users;
-
-
-                createWallet(message.getAuthor());
-
                 User recipient = (message.getMentionedUsers().get(0));
-                createWallet(recipient);
-
-                obj = parser.parse(new FileReader("./sharqcoin.json"));
-                users = (org.json.simple.JSONArray) obj;
-
-                org.json.simple.JSONObject userFound = findUser(message.getAuthor().getId(), users);
-                org.json.simple.JSONObject targetUser = findUser(recipient.getId(), users);
+                org.json.simple.JSONObject targetUser = getUser(recipient);
+                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
                 if (sendAmount > 0 && sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
                     channel.sendMessage("Insufficient funds!").queue();
                 } else {
+                    JSONParser parser = new JSONParser();
+                    Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+                    org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
+
+                    users.remove(userFound);
+                    users.remove(targetUser);
+
                     userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
                     assert targetUser != null;
                     targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
 
                     if (command.length > 3) {
                         channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
-
                     } else {
                         channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
-
                     }
 
+                    users.add(userFound);
+                    users.add(targetUser);
+
+
                     FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                    jsonFile.write(users.toString());
+                    jsonFile.write(users.toJSONString());
                     jsonFile.flush();
                     jsonFile.close();
                 }
@@ -304,17 +287,7 @@ public class Listener extends ListenerAdapter {
         }
     }
 
-    private org.json.simple.JSONObject findUser(String id, org.json.simple.JSONArray users) {
-        for (Object u : users) {
-            org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
-            if (id.equalsIgnoreCase(user.get("id").toString())) {
-                return (org.json.simple.JSONObject) u;
-            }
-        }
-        return null;
-    }
-
-    private void createWallet(User author) {
+    private org.json.simple.JSONObject getUser(User targetUser) {
         JSONParser parser = new JSONParser();
 
         try {
@@ -322,31 +295,71 @@ public class Listener extends ListenerAdapter {
             Object obj = parser.parse(new FileReader("./sharqcoin.json"));
             org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
 
-            org.json.simple.JSONObject existingUser = findUser(author.getId(), users);
-            if (existingUser == null) {
-                org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
-                newUser.put("Name", author.getName());
-                newUser.put("id", author.getId());
-                newUser.put("amount", 0.0);
-                users.add(newUser);
 
-                FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                jsonFile.write(users.toString());
-                jsonFile.flush();
-                jsonFile.close();
-            } else {
-                existingUser.put("Name", author.getName());
-                FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                jsonFile.write(users.toString());
-                jsonFile.flush();
-                jsonFile.close();
+            for (Object u : users) {
+                org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
+                if (targetUser.getId().equalsIgnoreCase(user.get("id").toString())) {
+                    user.put("Name", targetUser.getName());
+                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+                    jsonFile.write(users.toJSONString());
+                    jsonFile.flush();
+                    jsonFile.close();
+                    return user;
+                }
             }
 
+
+            org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
+            newUser.put("Name", targetUser.getName());
+            newUser.put("id", targetUser.getId());
+            newUser.put("amount", 0.0);
+            users.add(newUser);
+
+            FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+            jsonFile.write(users.toJSONString());
+            jsonFile.flush();
+            jsonFile.close();
+            return newUser;
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+        return null;
     }
+
+//    private void createWallet(User author) {
+//        JSONParser parser = new JSONParser();
+//
+//        try {
+//
+//            Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+//            org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
+//
+//            org.json.simple.JSONObject existingUser = findUser(author.getId(), users);
+//            if (existingUser == null) {
+//                org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
+//                newUser.put("Name", author.getName());
+//                newUser.put("id", author.getId());
+//                newUser.put("amount", 0.0);
+//                users.add(newUser);
+//
+//                FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+//                jsonFile.write(users.toString());
+//                jsonFile.flush();
+//                jsonFile.close();
+//            } else {
+//                existingUser.put("Name", author.getName());
+//                FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+//                jsonFile.write(users.toString());
+//                jsonFile.flush();
+//                jsonFile.close();
+//            }
+//
+//
+//        } catch (IOException | ParseException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void sendServerList(ArrayList<Server> serverList, MessageChannel channel, boolean sushi) {
         EmbedBuilder messageReply = new EmbedBuilder();
