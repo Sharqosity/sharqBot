@@ -43,11 +43,6 @@ public class SharqCoinListener extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
 
         String[] command = content.split(" ", 4);
-        System.out.println(message.getAuthor().getId());
-        if(command.length > 2) {
-            System.out.println(command[0]);
-            System.out.println(command[1]);
-        }
 
 
         if (command[0].equalsIgnoreCase("!wallet")) {
@@ -136,13 +131,9 @@ public class SharqCoinListener extends ListenerAdapter {
 
         } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup")) { //message sent by pubobot
 
-
             //get player's users
             User player1 = message.getMentionedUsers().get(0);
             User player2 = message.getMentionedUsers().get(1);
-            System.out.println(player1.getName());
-            System.out.println(player2.getName());
-
 
 
             double player1Reward, player2Reward;
@@ -156,7 +147,6 @@ public class SharqCoinListener extends ListenerAdapter {
             } else {
                 return;
             }
-            System.out.println(player1Reward);
 
             //time to hand out rewards
             //check both player's lastplayed pickup
@@ -164,8 +154,8 @@ public class SharqCoinListener extends ListenerAdapter {
             JSONObject player2JSON = getUser(player2);
 
 //            player1JSON.putIfAbsent("lastPlayedPickup", java.time.LocalDateTime);
-            player1JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0,1,1,1,0).toString());
-            player2JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0,1,1,1,0).toString());
+            player1JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
+            player2JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
 
 
             player1JSON.putIfAbsent("streak", 0);
@@ -180,11 +170,11 @@ public class SharqCoinListener extends ListenerAdapter {
             long minutesPlayer1 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player1JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
             long minutesPlayer2 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player2JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
 
-            if(minutesPlayer1 < 10L) {
+            if (minutesPlayer1 < 10L) {
                 player1Receives = false;
                 channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
             }
-            if(minutesPlayer2 < 10L) {
+            if (minutesPlayer2 < 10L) {
                 player2Receives = false;
                 channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
             }
@@ -235,14 +225,14 @@ public class SharqCoinListener extends ListenerAdapter {
 
     private double getPlayerReward(double playerReward, JSONObject playerJSON, boolean playerReceives) {
         if (playerReceives) {
-            if(Integer.parseInt(playerJSON.get("streak").toString()) == 0) {
+            if (Integer.parseInt(playerJSON.get("streak").toString()) == 0) {
                 playerJSON.put("streak", 1);
-            } else if(LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1 ) {
+            } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1) {
                 playerJSON.put("streak", Integer.parseInt(playerJSON.get("streak").toString()) + 1);
                 if (Integer.parseInt(playerJSON.get("streak").toString()) % 3 == 0) {
                     playerReward += THREE_DAY_STREAK_REWARD;
                 }
-            } else if(LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 0 ) {
+            } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 0) {
 
             } else {
                 playerJSON.put("streak", 0);
