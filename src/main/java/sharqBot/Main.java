@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import sharqBot.Message.Listener;
+import sharqBot.Message.SharqCoinListener;
 
 import javax.security.auth.login.LoginException;
 import java.io.BufferedReader;
@@ -40,11 +41,14 @@ public class Main {
 
         jdaBuilder.setToken(token);
         jdaBuilder.addEventListener(new Listener());
+        jdaBuilder.addEventListener(new SharqCoinListener());
 //        jdaBuilder.addEventListener(new PickupListener());
 
+        System.out.println("Start time: "+ java.time.LocalDateTime.now());
         jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
         Thread.sleep(5000);
         jdaBuilder.useSharding(1, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+
 
 
 //        JDA api = jdaBuilder.buildBlocking();

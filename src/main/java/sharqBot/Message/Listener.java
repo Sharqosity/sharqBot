@@ -1,21 +1,23 @@
 package sharqBot.Message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.GuildController;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Listener extends ListenerAdapter {
 
@@ -89,101 +91,100 @@ public class Listener extends ListenerAdapter {
                 }
             }
 
-        } else if (command[0].equalsIgnoreCase("!wallet")) {
+        }
 
+//        else if (command[0].equalsIgnoreCase("!wallet")) {
+//
+//                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
+//
+//                assert userFound != null;
+//                channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
+//
+//        } else if (command[0].equalsIgnoreCase("!send")) {
+//
+//            double sendAmount = Double.parseDouble(command[1]);
+//
+//            try {
+//                User recipient = (message.getMentionedUsers().get(0));
+//                org.json.simple.JSONObject targetUser = getUser(recipient);
+//                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
+//
+//                assert userFound != null;
+//                if (sendAmount > 0 && sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
+//                    channel.sendMessage("Insufficient funds!").queue();
+//                } else {
+//                    JSONParser parser = new JSONParser();
+//                    Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+//                    org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
+//
+//                    users.remove(userFound);
+//                    users.remove(targetUser);
+//
+//                    userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
+//                    assert targetUser != null;
+//                    targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
+//
+//                    if (command.length > 3) {
+//                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
+//                    } else {
+//                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
+//                    }
+//
+//                    users.add(userFound);
+//                    users.add(targetUser);
+//
+//
+//                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+//                    jsonFile.write(users.toJSONString());
+//                    jsonFile.flush();
+//                    jsonFile.close();
+//                }
+//
+//
+//            } catch (IOException | ParseException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup has started")) { //message sent by pubobot
+//
+//
+//        } else if (command[0].equalsIgnoreCase("!top5")) {
+//
+//
+//            JSONParser parser = new JSONParser();
+//            try {
+//                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+//                org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
+//
+//
+//                ArrayList<org.json.simple.JSONObject> usersArray = new ArrayList<>();
+//                for (Object u : users) {
+//                    org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
+//                    usersArray.add(user);
+//                }
+//
+//                usersArray.sort(Comparator.comparingDouble(a -> Double.parseDouble(a.get("amount").toString())));
+//
+//                EmbedBuilder sharqCoinReply = new EmbedBuilder();
+//                sharqCoinReply.setTitle("Top 5 SharqCoin Net Worth");
+//                sharqCoinReply.setDescription("<:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905>");
+//                sharqCoinReply.setColor(Color.decode("#ffd700"));
+//
+//
+//                for (int i = usersArray.size() - 1; i > usersArray.size() - 6; i--) {
+//                    sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), usersArray.get(i).get("amount").toString(), false);
+//                }
+//                channel.sendMessage(sharqCoinReply.build()).queue();
+//
+//            } catch (IOException | ParseException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
 
-
-
-                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
-
-                assert userFound != null;
-                channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
-
-
-
-        } else if (command[0].equalsIgnoreCase("!send")) {
-
-            double sendAmount = Double.parseDouble(command[1]);
-
-            try {
-                User recipient = (message.getMentionedUsers().get(0));
-                org.json.simple.JSONObject targetUser = getUser(recipient);
-                org.json.simple.JSONObject userFound = getUser(message.getAuthor());
-
-                assert userFound != null;
-                if (sendAmount > 0 && sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
-                    channel.sendMessage("Insufficient funds!").queue();
-                } else {
-                    JSONParser parser = new JSONParser();
-                    Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-                    org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
-
-                    users.remove(userFound);
-                    users.remove(targetUser);
-
-                    userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
-                    assert targetUser != null;
-                    targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
-
-                    if (command.length > 3) {
-                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
-                    } else {
-                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
-                    }
-
-                    users.add(userFound);
-                    users.add(targetUser);
-
-
-                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                    jsonFile.write(users.toJSONString());
-                    jsonFile.flush();
-                    jsonFile.close();
-                }
-
-
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
-
-
-        } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup has started")) { //message sent by pubobot
-
-
-        } else if (command[0].equalsIgnoreCase("!top5")) {
-
-
-            JSONParser parser = new JSONParser();
-            try {
-                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-                org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
-
-
-                ArrayList<org.json.simple.JSONObject> usersArray = new ArrayList<>();
-                for (Object u : users) {
-                    org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
-                    usersArray.add(user);
-                }
-
-                usersArray.sort(Comparator.comparingDouble(a -> Double.parseDouble(a.get("amount").toString())));
-
-                EmbedBuilder sharqCoinReply = new EmbedBuilder();
-                sharqCoinReply.setTitle("Top 5 SharqCoin Net Worth");
-                sharqCoinReply.setDescription("<:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905>");
-                sharqCoinReply.setColor(Color.decode("#ffd700"));
-
-
-                for (int i = usersArray.size() - 1; i > usersArray.size() - 6; i--) {
-                    sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), usersArray.get(i).get("amount").toString(), false);
-                }
-                channel.sendMessage(sharqCoinReply.build()).queue();
-
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
-
-
-        } else if (command[0].equalsIgnoreCase("!notify")) {
+        else if (command[0].equalsIgnoreCase("!notify")) {
             if (message.getGuild().getId().equals("407749422592819200")) {
 //                    Role NA = message.getGuild().getRolesByName("NA", true).get(0);
                 Role NA = message.getGuild().getRoleById("411979598541225996");
@@ -287,45 +288,45 @@ public class Listener extends ListenerAdapter {
         }
     }
 
-    private org.json.simple.JSONObject getUser(User targetUser) {
-        JSONParser parser = new JSONParser();
-
-        try {
-
-            Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-            org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
-
-
-            for (Object u : users) {
-                org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
-                if (targetUser.getId().equalsIgnoreCase(user.get("id").toString())) {
-                    user.put("Name", targetUser.getName());
-                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                    jsonFile.write(users.toJSONString());
-                    jsonFile.flush();
-                    jsonFile.close();
-                    return user;
-                }
-            }
-
-
-            org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
-            newUser.put("Name", targetUser.getName());
-            newUser.put("id", targetUser.getId());
-            newUser.put("amount", 0.0);
-            users.add(newUser);
-
-            FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-            jsonFile.write(users.toJSONString());
-            jsonFile.flush();
-            jsonFile.close();
-            return newUser;
-
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private org.json.simple.JSONObject getUser(User targetUser) {
+//        JSONParser parser = new JSONParser();
+//
+//        try {
+//
+//            Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+//            org.json.simple.JSONArray users = (org.json.simple.JSONArray) obj;
+//
+//
+//            for (Object u : users) {
+//                org.json.simple.JSONObject user = (org.json.simple.JSONObject) u;
+//                if (targetUser.getId().equalsIgnoreCase(user.get("id").toString())) {
+//                    user.put("Name", targetUser.getName());
+//                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+//                    jsonFile.write(users.toJSONString());
+//                    jsonFile.flush();
+//                    jsonFile.close();
+//                    return user;
+//                }
+//            }
+//
+//
+//            org.json.simple.JSONObject newUser = new org.json.simple.JSONObject();
+//            newUser.put("Name", targetUser.getName());
+//            newUser.put("id", targetUser.getId());
+//            newUser.put("amount", 0.0);
+//            users.add(newUser);
+//
+//            FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+//            jsonFile.write(users.toJSONString());
+//            jsonFile.flush();
+//            jsonFile.close();
+//            return newUser;
+//
+//        } catch (IOException | ParseException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 //    private void createWallet(User author) {
 //        JSONParser parser = new JSONParser();
