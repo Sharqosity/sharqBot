@@ -61,6 +61,7 @@ public class Listener extends ListenerAdapter {
             sharqCoinReply.setTitle("SharqCoin Commands");
             sharqCoinReply.setDescription("");
             sharqCoinReply.setColor(Color.decode("#F5CA40"));
+            sharqCoinReply.addField("!faq", "Frequently asked questions about sharqcoin", false);
             sharqCoinReply.addField("!wallet", "View your current sharqcoin balance", false);
             sharqCoinReply.addField("!send <amount> @user <message>", "Send another user sharqcoin", false);
             sharqCoinReply.addField("!top5", "forbes list of top billionaires", false);

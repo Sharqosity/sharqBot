@@ -44,8 +44,24 @@ public class SharqCoinListener extends ListenerAdapter {
 
         String[] command = content.split(" ", 4);
 
+        if(command[0].equalsIgnoreCase("!faq")) {
+            EmbedBuilder sharqCoinReply = new EmbedBuilder();
+            sharqCoinReply.setTitle("Sharqcoin FAQ");
+            sharqCoinReply.setDescription("hottest digital meme currency right now");
+            sharqCoinReply.setThumbnail("https://i.imgur.com/jg49fpv.png");
+//            sharqCoinReply.setImage("https://i.imgur.com/jg49fpv.png");
+            sharqCoinReply.setColor(Color.decode("#FFDF00"));
+            sharqCoinReply.addField("What is Sharqcoin?", "-Sharqcoin is a fun way of rewarding participation and activity in the sushiflex community!", false);
+            sharqCoinReply.addField("How can I get Sharqcoin?", "- Play pickups! You earn 1<:sharqcoin:413785618573819905> everytime you start a duel pickup, 4<:sharqcoin:413785618573819905> for doubles. Hit a 3-day streak:fire: for a 5<:sharqcoin:413785618573819905> reward!\n" +
+                    "- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!\n" +
+                    "- Help organize or stream aforementioned community events!", false);
+            sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with !send amount @user\n" +
+                    "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
+                    "- Hoard it and become a millionaire", false);
+            sharqCoinReply.addField("Commands", "Check your current sharqcoin balance with !wallet, and view the leaderboards with !top5", false);
+            channel.sendMessage(sharqCoinReply.build()).queue();
 
-        if (command[0].equalsIgnoreCase("!wallet")) {
+        } else if (command[0].equalsIgnoreCase("!wallet")) {
 
             JSONObject userFound = getUser(message.getAuthor());
 
