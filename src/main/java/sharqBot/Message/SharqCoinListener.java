@@ -62,9 +62,9 @@ public class SharqCoinListener extends ListenerAdapter {
                 JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
-                if (sendAmount > 0 && sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
+                if (sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
                     channel.sendMessage("Insufficient funds!").queue();
-                } else {
+                } else if (sendAmount > 0){
                     JSONParser parser = new JSONParser();
                     Object obj = parser.parse(new FileReader("./sharqcoin.json"));
                     JSONArray users = (JSONArray) obj;
@@ -131,63 +131,62 @@ public class SharqCoinListener extends ListenerAdapter {
 
         } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup")) { //message sent by pubobot
 
-            //get player's users
-            User player1 = message.getMentionedUsers().get(0);
-            User player2 = message.getMentionedUsers().get(1);
-
-
-            double player1Reward, player2Reward;
-            //check mode
-            if (command[0].equalsIgnoreCase("**1v1**")) {
-                player1Reward = 1;
-                player2Reward = 1;
-            } else if (command[0].equalsIgnoreCase("**2v2**")) {
-                player1Reward = 4;
-                player2Reward = 4;
-            } else {
-                return;
-            }
-
-            //time to hand out rewards
-            //check both player's lastplayed pickup
-            JSONObject player1JSON = getUser(player1);
-            JSONObject player2JSON = getUser(player2);
-
-//            player1JSON.putIfAbsent("lastPlayedPickup", java.time.LocalDateTime);
-            player1JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
-            player2JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
-
-
-            player1JSON.putIfAbsent("streak", 0);
-            player2JSON.putIfAbsent("streak", 0);
-            int player1Streak = Integer.parseInt(player1JSON.get("streak").toString());
-            int player2Streak = Integer.parseInt(player2JSON.get("streak").toString());
-
-
-            boolean player1Receives = true;
-            boolean player2Receives = true;
-
-            long minutesPlayer1 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player1JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
-            long minutesPlayer2 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player2JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
-
-            if (minutesPlayer1 < 10L) {
-                player1Receives = false;
-                channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
-            }
-            if (minutesPlayer2 < 10L) {
-                player2Receives = false;
-                channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
-            }
-
-
             try {
-
                 JSONParser parser = new JSONParser();
                 Object obj = parser.parse(new FileReader("./sharqcoin.json"));
                 JSONArray users = (JSONArray) obj;
 
+                //get player's users
+                User player1 = message.getMentionedUsers().get(0);
+                User player2 = message.getMentionedUsers().get(1);
+
+
+                double player1Reward, player2Reward;
+                //check mode
+                if (command[0].equalsIgnoreCase("**1v1**")) {
+                    player1Reward = 1;
+                    player2Reward = 1;
+                } else if (command[0].equalsIgnoreCase("**2v2**")) {
+                    player1Reward = 4;
+                    player2Reward = 4;
+                } else {
+                    return;
+                }
+
+                //time to hand out rewards
+                //check both player's lastplayed pickup
+                JSONObject player1JSON = getUser(player1);
+                JSONObject player2JSON = getUser(player2);
+
                 users.remove(player1JSON);
                 users.remove(player2JSON);
+
+//            player1JSON.putIfAbsent("lastPlayedPickup", java.time.LocalDateTime);
+//                player1JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
+//                player2JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
+//                player1JSON.putIfAbsent("streak", 0);
+//                player2JSON.putIfAbsent("streak", 0);
+
+                int player1Streak = Integer.parseInt(player1JSON.get("streak").toString());
+                int player2Streak = Integer.parseInt(player2JSON.get("streak").toString());
+
+
+                boolean player1Receives = true;
+                boolean player2Receives = true;
+
+                long minutesPlayer1 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player1JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
+                long minutesPlayer2 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player2JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
+
+                if (minutesPlayer1 < 10L) {
+                    player1Receives = false;
+                    channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                }
+                if (minutesPlayer2 < 10L) {
+                    player2Receives = false;
+                    channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                }
+
+
 
                 player1Reward = getPlayerReward(player1Reward, player1JSON, player1Receives);
                 player2Reward = getPlayerReward(player2Reward, player2JSON, player2Receives);
@@ -280,6 +279,8 @@ public class SharqCoinListener extends ListenerAdapter {
             newUser.put("Name", targetUser.getName());
             newUser.put("id", targetUser.getId());
             newUser.put("amount", 0.0);
+            newUser.put("streak", 0);
+            newUser.put("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
             users.add(newUser);
 
             FileWriter jsonFile = new FileWriter("./sharqcoin.json");
