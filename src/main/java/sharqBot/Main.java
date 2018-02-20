@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 
 public class Main {
 
+
+
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         FileReader in = null;
 
@@ -36,6 +38,8 @@ public class Main {
             e.printStackTrace();
             System.exit(0);
         }
+
+
 
         JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
         jdaBuilder.setReconnectQueue(new SessionReconnectQueue());

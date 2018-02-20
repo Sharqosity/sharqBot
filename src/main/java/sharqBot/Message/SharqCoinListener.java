@@ -30,152 +30,154 @@ public class SharqCoinListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
-        Message message = event.getMessage();
 
-        if (!event.isFromType(ChannelType.TEXT)) {
-            return;
-        }
-//        else if (event.getAuthor().isBot() && !message.getAuthor().getId().equalsIgnoreCase("177022387903004673")) {
+//        if (!event.isFromType(ChannelType.TEXT)) {
+//            return;
+//        } else if (event.getAuthor().isBot() && !message.getAuthor().getId().equalsIgnoreCase("177022387903004673")) {
 //            return;
 //        }
 
-        String content = message.getRawContent();
-        MessageChannel channel = event.getChannel();
+        if(event.isFromType(ChannelType.TEXT)) {
 
-        String[] command = content.split(" ", 4);
+            Message message = event.getMessage();
 
-        if(command[0].equalsIgnoreCase("!faq")) {
-            EmbedBuilder sharqCoinReply = new EmbedBuilder();
-            sharqCoinReply.setTitle("Sharqcoin FAQ");
-            sharqCoinReply.setDescription("hottest digital meme currency right now");
-            sharqCoinReply.setThumbnail("https://i.imgur.com/jg49fpv.png");
+            String content = message.getRawContent();
+            MessageChannel channel = event.getChannel();
+
+            String[] command = content.split(" ", 4);
+
+            if (command[0].equalsIgnoreCase("!faq")) {
+                EmbedBuilder sharqCoinReply = new EmbedBuilder();
+                sharqCoinReply.setTitle("Sharqcoin FAQ");
+                sharqCoinReply.setDescription("hottest digital meme currency right now");
+                sharqCoinReply.setThumbnail("https://i.imgur.com/jg49fpv.png");
 //            sharqCoinReply.setImage("https://i.imgur.com/jg49fpv.png");
-            sharqCoinReply.setColor(Color.decode("#FFDF00"));
-            sharqCoinReply.addField("What is Sharqcoin?", "-Sharqcoin is a fun way of rewarding participation and activity in the sushiflex community!", false);
-            sharqCoinReply.addField("How can I get Sharqcoin?", "- Play pickups! You earn 1<:sharqcoin:413785618573819905> everytime you start a duel pickup, 4<:sharqcoin:413785618573819905> for doubles. Hit a 3-day streak:fire: for a 5<:sharqcoin:413785618573819905> reward!\n" +
-                    "- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!\n" +
-                    "- Help organize or stream aforementioned community events!", false);
-            sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with !send amount @user\n" +
-                    "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
-                    "- Hoard it and become a millionaire", false);
-            sharqCoinReply.addField("Commands", "Check your current sharqcoin balance with !wallet, and view the leaderboards with !top5", false);
-            channel.sendMessage(sharqCoinReply.build()).queue();
+                sharqCoinReply.setColor(Color.decode("#FFDF00"));
+                sharqCoinReply.addField("What is Sharqcoin?", "-Sharqcoin is a fun way of rewarding participation and activity in the sushiflex community!", false);
+                sharqCoinReply.addField("How can I get Sharqcoin?", "- Play pickups! You earn 1<:sharqcoin:413785618573819905> everytime you start a duel pickup, 4<:sharqcoin:413785618573819905> for doubles. Hit a 3-day streak:fire: for a 5<:sharqcoin:413785618573819905> reward!\n" +
+                        "- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!\n" +
+                        "- Help organize or stream aforementioned community events!", false);
+                sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with !send amount @user\n" +
+                        "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
+                        "- Hoard it and become a millionaire", false);
+                sharqCoinReply.addField("Commands", "Check your current sharqcoin balance with !wallet, and view the leaderboards with !top5", false);
+                channel.sendMessage(sharqCoinReply.build()).queue();
 
-        } else if (command[0].equalsIgnoreCase("!wallet")) {
+            } else if (command[0].equalsIgnoreCase("!wallet")) {
 
-            JSONObject userFound = getUser(message.getAuthor());
-
-            assert userFound != null;
-            channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
-
-        } else if (command[0].equalsIgnoreCase("!send")) {
-
-            double sendAmount = Double.parseDouble(command[1]);
-
-            try {
-                User recipient = (message.getMentionedUsers().get(0));
-                JSONObject targetUser = getUser(recipient);
                 JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
-                if (sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
-                    channel.sendMessage("Insufficient funds!").queue();
-                } else if (sendAmount > 0){
+                channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
+
+            } else if (command[0].equalsIgnoreCase("!send")) {
+
+                double sendAmount = Double.parseDouble(command[1]);
+
+                try {
+                    User recipient = (message.getMentionedUsers().get(0));
+                    JSONObject targetUser = getUser(recipient);
+                    JSONObject userFound = getUser(message.getAuthor());
+
+                    assert userFound != null;
+                    if (sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
+                        channel.sendMessage("Insufficient funds!").queue();
+                    } else if (sendAmount > 0) {
+                        JSONParser parser = new JSONParser();
+                        Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+                        JSONArray users = (JSONArray) obj;
+
+                        users.remove(userFound);
+                        users.remove(targetUser);
+
+                        userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
+                        assert targetUser != null;
+                        targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
+
+                        if (command.length > 3) {
+                            channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
+                        } else {
+                            channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
+                        }
+
+                        users.add(userFound);
+                        users.add(targetUser);
+
+
+                        FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+                        jsonFile.write(users.toJSONString());
+                        jsonFile.flush();
+                        jsonFile.close();
+                    }
+
+
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (command[0].equalsIgnoreCase("!top5")) {
+
+
+                JSONParser parser = new JSONParser();
+                try {
+                    Object obj = parser.parse(new FileReader("./sharqcoin.json"));
+                    JSONArray users = (JSONArray) obj;
+
+
+                    ArrayList<JSONObject> usersArray = new ArrayList<>();
+                    for (Object u : users) {
+                        JSONObject user = (JSONObject) u;
+                        usersArray.add(user);
+                    }
+
+                    usersArray.sort(Comparator.comparingDouble(a -> Double.parseDouble(a.get("amount").toString())));
+
+                    EmbedBuilder sharqCoinReply = new EmbedBuilder();
+                    sharqCoinReply.setTitle("Top 5 SharqCoin Net Worth");
+//                sharqCoinReply.setDescription("<:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905>");
+                    sharqCoinReply.setColor(Color.decode("#ffd700"));
+
+
+                    for (int i = usersArray.size() - 1; i > usersArray.size() - 6; i--) {
+                        sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), usersArray.get(i).get("amount").toString() + "<:sharqcoin:413785618573819905>", false);
+                    }
+                    channel.sendMessage(sharqCoinReply.build()).queue();
+
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup")) { //message sent by pubobot
+
+                try {
                     JSONParser parser = new JSONParser();
                     Object obj = parser.parse(new FileReader("./sharqcoin.json"));
                     JSONArray users = (JSONArray) obj;
 
-                    users.remove(userFound);
-                    users.remove(targetUser);
+                    //get player's users
+                    User player1 = message.getMentionedUsers().get(0);
+                    User player2 = message.getMentionedUsers().get(1);
 
-                    userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
-                    assert targetUser != null;
-                    targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
 
-                    if (command.length > 3) {
-                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
+                    double player1Reward, player2Reward;
+                    //check mode
+                    if (command[0].equalsIgnoreCase("**1v1**")) {
+                        player1Reward = 1;
+                        player2Reward = 1;
+                    } else if (command[0].equalsIgnoreCase("**2v2**")) {
+                        player1Reward = 4;
+                        player2Reward = 4;
                     } else {
-                        channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
+                        return;
                     }
 
-                    users.add(userFound);
-                    users.add(targetUser);
+                    //time to hand out rewards
+                    //check both player's lastplayed pickup
+                    JSONObject player1JSON = getUser(player1);
+                    JSONObject player2JSON = getUser(player2);
 
-
-                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                    jsonFile.write(users.toJSONString());
-                    jsonFile.flush();
-                    jsonFile.close();
-                }
-
-
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
-
-        } else if (command[0].equalsIgnoreCase("!top5")) {
-
-
-            JSONParser parser = new JSONParser();
-            try {
-                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-                JSONArray users = (JSONArray) obj;
-
-
-                ArrayList<JSONObject> usersArray = new ArrayList<>();
-                for (Object u : users) {
-                    JSONObject user = (JSONObject) u;
-                    usersArray.add(user);
-                }
-
-                usersArray.sort(Comparator.comparingDouble(a -> Double.parseDouble(a.get("amount").toString())));
-
-                EmbedBuilder sharqCoinReply = new EmbedBuilder();
-                sharqCoinReply.setTitle("Top 5 SharqCoin Net Worth");
-//                sharqCoinReply.setDescription("<:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905> <:sharqcoin:413785618573819905>");
-                sharqCoinReply.setColor(Color.decode("#ffd700"));
-
-
-                for (int i = usersArray.size() - 1; i > usersArray.size() - 6; i--) {
-                    sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), usersArray.get(i).get("amount").toString() + "<:sharqcoin:413785618573819905>", false);
-                }
-                channel.sendMessage(sharqCoinReply.build()).queue();
-
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
-
-        } else if (message.getAuthor().getId().equalsIgnoreCase("177022387903004673") && command[1].equalsIgnoreCase("pickup")) { //message sent by pubobot
-
-            try {
-                JSONParser parser = new JSONParser();
-                Object obj = parser.parse(new FileReader("./sharqcoin.json"));
-                JSONArray users = (JSONArray) obj;
-
-                //get player's users
-                User player1 = message.getMentionedUsers().get(0);
-                User player2 = message.getMentionedUsers().get(1);
-
-
-                double player1Reward, player2Reward;
-                //check mode
-                if (command[0].equalsIgnoreCase("**1v1**")) {
-                    player1Reward = 1;
-                    player2Reward = 1;
-                } else if (command[0].equalsIgnoreCase("**2v2**")) {
-                    player1Reward = 4;
-                    player2Reward = 4;
-                } else {
-                    return;
-                }
-
-                //time to hand out rewards
-                //check both player's lastplayed pickup
-                JSONObject player1JSON = getUser(player1);
-                JSONObject player2JSON = getUser(player2);
-
-                users.remove(player1JSON);
-                users.remove(player2JSON);
+                    users.remove(player1JSON);
+                    users.remove(player2JSON);
 
 //            player1JSON.putIfAbsent("lastPlayedPickup", java.time.LocalDateTime);
 //                player1JSON.putIfAbsent("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
@@ -183,70 +185,96 @@ public class SharqCoinListener extends ListenerAdapter {
 //                player1JSON.putIfAbsent("streak", 0);
 //                player2JSON.putIfAbsent("streak", 0);
 
-                int player1Streak = Integer.parseInt(player1JSON.get("streak").toString());
-                int player2Streak = Integer.parseInt(player2JSON.get("streak").toString());
+                    int player1Streak = Integer.parseInt(player1JSON.get("streak").toString());
+                    int player2Streak = Integer.parseInt(player2JSON.get("streak").toString());
 
 
-                boolean player1Receives = true;
-                boolean player2Receives = true;
+                    boolean player1Receives = true;
+                    boolean player2Receives = true;
 
-                long minutesPlayer1 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player1JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
-                long minutesPlayer2 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player2JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
+                    long minutesPlayer1 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player1JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
+                    long minutesPlayer2 = ChronoUnit.MINUTES.between(LocalDateTime.parse(player2JSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
 
-                if (minutesPlayer1 < 10L) {
-                    player1Receives = false;
-                    channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                    if (minutesPlayer1 < 10L) {
+                        player1Receives = false;
+                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                    }
+                    if (minutesPlayer2 < 10L) {
+                        player2Receives = false;
+                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                    }
+
+
+
+
+
+                    player1Reward = getPlayerReward(player1Reward, player1JSON, player1Receives).getReward();
+                    player2Reward = getPlayerReward(player2Reward, player2JSON, player2Receives).getReward();
+
+                    boolean player1StreakEarned = getPlayerReward(player1Reward,player1JSON,player1Receives).getStreakEarned(); //spaghetti code
+                    boolean player2StreakEarned = getPlayerReward(player2Reward,player2JSON,player2Receives).getStreakEarned(); //spaghetti code
+
+
+                    String response = "";
+                    if (player1Receives) {
+                        response += rewardMessage(player1JSON, player1Reward, player1Streak,player1StreakEarned);
+                    }
+                    if (player2Receives) {
+                        response += rewardMessage(player2JSON, player2Reward, player2Streak,player2StreakEarned);
+                    }
+
+                    player1JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
+                    player2JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
+
+                    channel.sendMessage(response).queue();
+
+
+                    users.add(player1JSON);
+                    users.add(player2JSON);
+
+                    FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+                    jsonFile.write(users.toJSONString());
+                    jsonFile.flush();
+                    jsonFile.close();
+
+
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
                 }
-                if (minutesPlayer2 < 10L) {
-                    player2Receives = false;
-                    channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
-                }
-
-
-
-                player1Reward = getPlayerReward(player1Reward, player1JSON, player1Receives);
-                player2Reward = getPlayerReward(player2Reward, player2JSON, player2Receives);
-
-                String response = "";
-                if (player1Receives) {
-                    response += rewardMessage(player1JSON, player1Reward, player1Streak);
-                }
-                if (player2Receives) {
-                    response += rewardMessage(player2JSON, player2Reward, player2Streak);
-                }
-
-                player1JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
-                player2JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
-
-                channel.sendMessage(response).queue();
-
-
-                users.add(player1JSON);
-                users.add(player2JSON);
-
-                FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-                jsonFile.write(users.toJSONString());
-                jsonFile.flush();
-                jsonFile.close();
-
-
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
             }
+        } else if (event.isFromType(ChannelType.PRIVATE)) {
+            Message message = event.getMessage();
+
+            String content = message.getRawContent();
+            MessageChannel channel = event.getChannel();
+
+            String[] command = content.split(" ", 4);
+
+            if(command[0].equalsIgnoreCase("!bet")) {
+
+            } else if (command[0].equalsIgnoreCase("!withdrawbet")){
+
+            }
+        } else {
+            return;
         }
 
 
     }
 
-    private double getPlayerReward(double playerReward, JSONObject playerJSON, boolean playerReceives) {
+    private PickupReward getPlayerReward(double playerReward, JSONObject playerJSON, boolean playerReceives) {
+        boolean streakEarned = false;
         if (playerReceives) {
             if (Integer.parseInt(playerJSON.get("streak").toString()) == 0) {
                 playerJSON.put("streak", 1);
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1) {
-                playerJSON.put("streak", Integer.parseInt(playerJSON.get("streak").toString()) + 1);
                 if (Integer.parseInt(playerJSON.get("streak").toString()) % 3 == 0) {
                     playerReward += THREE_DAY_STREAK_REWARD;
+                    streakEarned = true;
                 }
+
+                playerJSON.put("streak", Integer.parseInt(playerJSON.get("streak").toString()) + 1);
+
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 0) {
 
             } else {
@@ -255,13 +283,13 @@ public class SharqCoinListener extends ListenerAdapter {
 
             playerJSON.put("amount", Double.parseDouble(playerJSON.get("amount").toString()) + playerReward);
         }
-        return playerReward;
+        return new PickupReward(playerReward,streakEarned);
     }
 
-    private String rewardMessage(JSONObject user, double reward, int streak) {
+    private String rewardMessage(JSONObject user, double reward, int streak, boolean streakEarned) {
         String response = "";
         response += "Pickup rewards for " + user.get("Name").toString() + ": " + reward + "<:sharqcoin:413785618573819905>";
-        if (streak != 0 && streak % 3 == 0) {
+        if (streakEarned && streak != 0 && (streak-1) % 3 == 0) { //streak - 1 oh no
             response += ", " + streak + " day streak! \uD83D\uDD25 \n";
         } else {
             response += "\n";
