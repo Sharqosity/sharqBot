@@ -2,15 +2,15 @@ package sharqBot.Message;
 
 public class PickupReward {
 
-    private double reward;
+    private int reward;
     private boolean streakEarned;
 
-    public PickupReward(double reward, boolean streakEarned) {
+    public PickupReward(int reward, boolean streakEarned) {
         this.reward = reward;
         this.streakEarned = streakEarned;
     }
 
-    public double getReward() {
+    public int getReward() {
         return reward;
     }
 

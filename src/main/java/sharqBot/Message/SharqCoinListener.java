@@ -23,9 +23,9 @@ import java.util.Comparator;
 
 public class SharqCoinListener extends ListenerAdapter {
 
-    private final double DUEL_REWARD = 1;
-    private final double DOUBLES_REWARD = 4;
-    private final double THREE_DAY_STREAK_REWARD = 5;
+    private final int DUEL_REWARD = 100;
+    private final int DOUBLES_REWARD = 400;
+    private final int THREE_DAY_STREAK_REWARD = 500;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -68,36 +68,47 @@ public class SharqCoinListener extends ListenerAdapter {
                 JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
-                channel.sendMessage("You have " + userFound.get("amount") + "<:sharqcoin:413785618573819905> in your wallet.").queue();
-
+                System.out.println(userFound.get("amount").toString());
+                channel.sendMessage("You have " + ((double)Integer.parseInt(userFound.get("amount").toString()))/100 + "<:sharqcoin:413785618573819905> in your wallet.").queue();
+                System.out.println(((double)Integer.parseInt(userFound.get("amount").toString()))/100);
             } else if (command[0].equalsIgnoreCase("!send")) {
 
-                double sendAmount = Double.parseDouble(command[1]);
+                if(Double.parseDouble(command[1]) < 0.01) {
+                    channel.sendMessage("Please send an amount higher than 0.01!").queue();
+                    return;
+                }
 
+                int sendAmount = (int)(Math.round(Double.parseDouble(command[1])*100));
                 try {
                     User recipient = (message.getMentionedUsers().get(0));
                     JSONObject targetUser = getUser(recipient);
                     JSONObject userFound = getUser(message.getAuthor());
 
                     assert userFound != null;
-                    if (sendAmount > Double.parseDouble(userFound.get("amount").toString())) {
+                    if (sendAmount > Integer.parseInt(userFound.get("amount").toString())) {
                         channel.sendMessage("Insufficient funds!").queue();
                     } else if (sendAmount > 0) {
                         JSONParser parser = new JSONParser();
                         Object obj = parser.parse(new FileReader("./sharqcoin.json"));
                         JSONArray users = (JSONArray) obj;
 
-                        users.remove(userFound);
-                        users.remove(targetUser);
+                        System.out.println(users);
+                        System.out.println(userFound);
+                        System.out.println(targetUser);
 
-                        userFound.put("amount", Double.parseDouble(userFound.get("amount").toString()) - sendAmount);
+                        users.remove(getUser(recipient));
+                        users.remove(getUser(message.getAuthor()));
+                        System.out.println(users);
+
+
+                        userFound.put("amount", Integer.parseInt(userFound.get("amount").toString()) - sendAmount);
                         assert targetUser != null;
-                        targetUser.put("amount", Double.parseDouble(targetUser.get("amount").toString()) + sendAmount);
+                        targetUser.put("amount", Integer.parseInt(targetUser.get("amount").toString()) + sendAmount);
 
                         if (command.length > 3) {
-                            channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
+                            channel.sendMessage(((double)sendAmount)/100 + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]).queue();
                         } else {
-                            channel.sendMessage(sendAmount + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
+                            channel.sendMessage(((double)sendAmount/100) + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".").queue();
                         }
 
                         users.add(userFound);
@@ -139,7 +150,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
 
                     for (int i = usersArray.size() - 1; i > usersArray.size() - 6; i--) {
-                        sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), usersArray.get(i).get("amount").toString() + "<:sharqcoin:413785618573819905>", false);
+                        sharqCoinReply.addField(usersArray.get(i).get("Name").toString(), ((double)Integer.parseInt(usersArray.get(i).get("amount").toString()))/100 + "<:sharqcoin:413785618573819905>", false);
                     }
                     channel.sendMessage(sharqCoinReply.build()).queue();
 
@@ -159,14 +170,14 @@ public class SharqCoinListener extends ListenerAdapter {
                     User player2 = message.getMentionedUsers().get(1);
 
 
-                    double player1Reward, player2Reward;
+                    int player1Reward, player2Reward;
                     //check mode
                     if (command[0].equalsIgnoreCase("**1v1**")) {
-                        player1Reward = 1;
-                        player2Reward = 1;
+                        player1Reward = DUEL_REWARD;
+                        player2Reward = DUEL_REWARD;
                     } else if (command[0].equalsIgnoreCase("**2v2**")) {
-                        player1Reward = 4;
-                        player2Reward = 4;
+                        player1Reward = DOUBLES_REWARD;
+                        player2Reward = DOUBLES_REWARD;
                     } else {
                         return;
                     }
@@ -197,31 +208,32 @@ public class SharqCoinListener extends ListenerAdapter {
 
                     if (minutesPlayer1 < 10L) {
                         player1Receives = false;
-                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup <@" + player1JSON.get("id") + ">, what are you doing dude").queue();
                     }
                     if (minutesPlayer2 < 10L) {
                         player2Receives = false;
-                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup, what are you doing dude").queue();
+                        channel.sendMessage("It hasn't even been 10 minutes since your last pickup <@" + player2JSON.get("id") + ">, what are you doing dude").queue();
                     }
 
 
 
 
 
-                    player1Reward = getPlayerReward(player1Reward, player1JSON, player1Receives).getReward();
-                    player2Reward = getPlayerReward(player2Reward, player2JSON, player2Receives).getReward();
-
-                    boolean player1StreakEarned = getPlayerReward(player1Reward,player1JSON,player1Receives).getStreakEarned(); //spaghetti code
-                    boolean player2StreakEarned = getPlayerReward(player2Reward,player2JSON,player2Receives).getStreakEarned(); //spaghetti code
+//                    player1Reward = getPlayerReward(player1Reward, player1JSON, player1Receives).getReward();
+//                    player2Reward = getPlayerReward(player2Reward, player2JSON, player2Receives).getReward();
+//
+//                    boolean player1StreakEarned = getPlayerReward(player1Reward,player1JSON,player1Receives).getStreakEarned(); //spaghetti code
+//                    boolean player2StreakEarned = getPlayerReward(player2Reward,player2JSON,player2Receives).getStreakEarned(); //spaghetti code
 
 
                     String response = "";
-                    if (player1Receives) {
-                        response += rewardMessage(player1JSON, player1Reward, player1Streak,player1StreakEarned);
-                    }
-                    if (player2Receives) {
-                        response += rewardMessage(player2JSON, player2Reward, player2Streak,player2StreakEarned);
-                    }
+                    response += getPlayerReward(player1Reward,player1JSON,player1Receives);
+                    response += getPlayerReward(player2Reward,player2JSON,player2Receives);
+
+//                    response += rewardMessage(player1JSON, player1Reward, player1Streak,player1StreakEarned);
+//
+//                    response += rewardMessage(player2JSON, player2Reward, player2Streak,player2StreakEarned);
+
 
                     player1JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
                     player2JSON.put("lastPlayedPickup", LocalDateTime.now().toString());
@@ -262,40 +274,43 @@ public class SharqCoinListener extends ListenerAdapter {
 
     }
 
-    private PickupReward getPlayerReward(double playerReward, JSONObject playerJSON, boolean playerReceives) {
-        boolean streakEarned = false;
+    private String getPlayerReward(int playerReward, JSONObject playerJSON, boolean playerReceives) {
+        String response = "";
+
+        int streak = Integer.parseInt(playerJSON.get("streak").toString());
         if (playerReceives) {
-            if (Integer.parseInt(playerJSON.get("streak").toString()) == 0) {
+
+            response += "Pickup rewards for " + playerJSON.get("Name").toString() + ": " + ((double)playerReward)/100 + "<:sharqcoin:413785618573819905>";
+
+            if (streak == 0) {
                 playerJSON.put("streak", 1);
+                response += "\n";
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1) {
-                if (Integer.parseInt(playerJSON.get("streak").toString()) % 3 == 0) {
+                if ((streak + 1) % 3 == 0) {
                     playerReward += THREE_DAY_STREAK_REWARD;
-                    streakEarned = true;
+                    response += ". " + streak + " day streak! \uD83D\uDD25 +" + ((double)THREE_DAY_STREAK_REWARD)/100 + "<:sharqcoin:413785618573819905> \n";
+
+                } else {
+                    response += "\n";
                 }
 
                 playerJSON.put("streak", Integer.parseInt(playerJSON.get("streak").toString()) + 1);
 
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 0) {
-
+                response += "\n";
             } else {
                 playerJSON.put("streak", 0);
+                response += "\n";
             }
 
-            playerJSON.put("amount", Double.parseDouble(playerJSON.get("amount").toString()) + playerReward);
-        }
-        return new PickupReward(playerReward,streakEarned);
-    }
+            playerJSON.put("amount", Integer.parseInt(playerJSON.get("amount").toString()) + playerReward);
 
-    private String rewardMessage(JSONObject user, double reward, int streak, boolean streakEarned) {
-        String response = "";
-        response += "Pickup rewards for " + user.get("Name").toString() + ": " + reward + "<:sharqcoin:413785618573819905>";
-        if (streakEarned && streak != 0 && (streak-1) % 3 == 0) { //streak - 1 oh no
-            response += ", " + streak + " day streak! \uD83D\uDD25 \n";
-        } else {
-            response += "\n";
+
         }
         return response;
+
     }
+
 
     private JSONObject getUser(User targetUser) {
         JSONParser parser = new JSONParser();
@@ -322,7 +337,7 @@ public class SharqCoinListener extends ListenerAdapter {
             JSONObject newUser = new JSONObject();
             newUser.put("Name", targetUser.getName());
             newUser.put("id", targetUser.getId());
-            newUser.put("amount", 0.0);
+            newUser.put("amount", 0);
             newUser.put("streak", 0);
             newUser.put("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
             users.add(newUser);
