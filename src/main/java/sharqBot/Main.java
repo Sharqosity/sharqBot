@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 public class Main {
 
@@ -39,10 +38,6 @@ public class Main {
             System.exit(0);
         }
 
-        System.out.println(LocalDateTime.of(2018,2,21,10, 5));
-        System.out.println(LocalDateTime.of(2018,2,21,3, 26));
-
-
         JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
         jdaBuilder.setReconnectQueue(new SessionReconnectQueue());
 
@@ -51,7 +46,7 @@ public class Main {
         jdaBuilder.addEventListener(new SharqCoinListener());
 //        jdaBuilder.addEventListener(new PickupListener());
 
-//        System.out.println("Start time: "+ java.time.LocalDateTime.now());
+        System.out.println("Start time: "+ java.time.LocalDateTime.now());
         jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
         Thread.sleep(5000);
         jdaBuilder.useSharding(1, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);

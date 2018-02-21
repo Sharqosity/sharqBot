@@ -13,19 +13,41 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.awt.*;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class SharqCoinListener extends ListenerAdapter {
 
     private final int DUEL_REWARD = 100;
     private final int DOUBLES_REWARD = 400;
     private final int THREE_DAY_STREAK_REWARD = 500;
+
+
+    public SharqCoinListener() {
+        Runnable backupSharqCoinDatabase = () -> {
+            try {
+                FileChannel src = new FileInputStream("./sharqcoin.json").getChannel();
+                String fileName = (LocalDateTime.now().toString()+ ".json").replaceAll(":",".");
+                File copyTo = new File("./sharqcoin backups/" + fileName);
+                copyTo.createNewFile();
+                FileChannel dest = new FileOutputStream(copyTo.getPath()).getChannel();
+                dest.transferFrom(src,0,src.size());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("sharqcoin.json backed up!");
+        };
+
+        ScheduledExecutorService backupService = Executors.newSingleThreadScheduledExecutor();
+        backupService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -57,7 +79,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 sharqCoinReply.addField("How can I get Sharqcoin?", "- Play pickups! You earn 1<:sharqcoin:413785618573819905> everytime you start a duel pickup, 4<:sharqcoin:413785618573819905> for doubles. Hit a 3-day streak:fire: for a 5<:sharqcoin:413785618573819905> reward!\n" +
                         "- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!\n" +
                         "- Help organize or stream aforementioned community events!\n" +
-                        "- Host Sushiflex servers - 15<:sharqcoin:413785618573819905> per server per month!", false);
+                        "- Host Sushiflex servers - 10<:sharqcoin:413785618573819905> per server per month!", false);
                 sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with !send amount @user\n" +
                         "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
                         "- Hoard it and become a millionaire", false);
