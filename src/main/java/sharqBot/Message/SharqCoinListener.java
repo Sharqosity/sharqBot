@@ -56,7 +56,8 @@ public class SharqCoinListener extends ListenerAdapter {
                 sharqCoinReply.addField("What is Sharqcoin?", "-Sharqcoin is a fun way of rewarding participation and activity in the sushiflex community!", false);
                 sharqCoinReply.addField("How can I get Sharqcoin?", "- Play pickups! You earn 1<:sharqcoin:413785618573819905> everytime you start a duel pickup, 4<:sharqcoin:413785618573819905> for doubles. Hit a 3-day streak:fire: for a 5<:sharqcoin:413785618573819905> reward!\n" +
                         "- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!\n" +
-                        "- Help organize or stream aforementioned community events!", false);
+                        "- Help organize or stream aforementioned community events!\n" +
+                        "- Host Sushiflex servers - 15<:sharqcoin:413785618573819905> per server per month!", false);
                 sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with !send amount @user\n" +
                         "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
                         "- Hoard it and become a millionaire", false);

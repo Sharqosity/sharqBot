@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -38,6 +39,8 @@ public class Main {
             System.exit(0);
         }
 
+        System.out.println(LocalDateTime.of(2018,2,21,10, 5));
+        System.out.println(LocalDateTime.of(2018,2,21,3, 26));
 
 
         JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
