@@ -105,7 +105,7 @@ public class OpenBet {
                 better.put("amount", Integer.parseInt(better.get("amount").toString()) + Math.round(b.getAmount()*ratio *100) / 100);
                 users.add(better);
                 b.getUser().openPrivateChannel().queue(privateChannel -> {
-                    privateChannel.sendMessage(winner + " wins vs. " + loser + "! \nYou win: " +((double)(Integer.parseInt(better.get("amount").toString()) + Math.round(b.getAmount()*ratio)))/100 +"<:sharqcoin:413785618573819905>").queue();
+                    privateChannel.sendMessage(winner + " wins vs. " + loser + "! \nYou win: " +((double)(/*Integer.parseInt(better.get("amount").toString()) +*/ Math.round(b.getAmount()*ratio)))/100 +"<:sharqcoin:413785618573819905>").queue();
                 });
 
                 FileWriter jsonFile = new FileWriter("./sharqcoin.json");

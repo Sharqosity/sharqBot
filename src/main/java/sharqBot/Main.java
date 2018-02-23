@@ -47,6 +47,8 @@ public class Main {
 //        jdaBuilder.addEventListener(new PickupListener());
 
         System.out.println("Start time: "+ java.time.LocalDateTime.now());
+
+//        System.out.println(java.time.LocalDateTime.of(2018,2,23,10,18));
         jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
         Thread.sleep(5000);
         jdaBuilder.useSharding(1, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);

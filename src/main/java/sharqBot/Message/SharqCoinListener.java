@@ -374,7 +374,7 @@ public class SharqCoinListener extends ListenerAdapter {
                         betStats.setTitle(finalResults.getPlayer1() + " wins vs. " + finalResults.getPlayer2() + "!");
                         betStats.setDescription("Stats!");
                         betStats.setColor(Color.decode("#852eff"));
-                        double p1Percentage = finalResults.getP1Total() / (finalResults.getP1Total() + finalResults.getP2Total());
+                        double p1Percentage = (double)finalResults.getP1Total() / (double)(finalResults.getP1Total() + finalResults.getP2Total());
                         p1Percentage = Math.round(p1Percentage * 100);
                         betStats.addField(finalResults.getPlayer1() + " ("+ p1Percentage+"%): ",finalResults.getPlayer1Bets().size() + " bets, " + ((double)finalResults.getP1Total())/100 + "<:sharqcoin:413785618573819905> total.", false);
                         betStats.addField(finalResults.getPlayer2() + " ("+ (100 - p1Percentage)+"%): ",finalResults.getPlayer2Bets().size() + " bets, " + ((double)finalResults.getP2Total())/100 + "<:sharqcoin:413785618573819905> total.", false);
@@ -384,7 +384,7 @@ public class SharqCoinListener extends ListenerAdapter {
                             List<Bet> topP1List = finalResults.getPlayer1TopBets();
 
                             for (int i = 0; i < topP1List.size(); i++) {
-                                topBets1.append(topP1List.get(i).getUser().getName() + " (" + topP1List.get(i).getAmount() + "<:sharqcoin:413785618573819905>)");
+                                topBets1.append(topP1List.get(i).getUser().getName() + " (" + ((double)topP1List.get(i).getAmount())/100 + "<:sharqcoin:413785618573819905>)");
                                 if(i != topP1List.size() - 1) {
                                     topBets1.append(", ");
                                 }
@@ -398,7 +398,7 @@ public class SharqCoinListener extends ListenerAdapter {
                             List<Bet> topP2List = finalResults.getPlayer2TopBets();
 
                             for (int i = 0; i < topP2List.size(); i++) {
-                                topBets2.append(topP2List.get(i).getUser().getName() + " (" + topP2List.get(i).getAmount() + "<:sharqcoin:413785618573819905>)");
+                                topBets2.append(topP2List.get(i).getUser().getName() + " (" + ((double)topP2List.get(i).getAmount())/100 + "<:sharqcoin:413785618573819905>)");
                                 if(i != topP2List.size() - 1) {
                                     topBets2.append(", ");
                                 }
@@ -417,7 +417,7 @@ public class SharqCoinListener extends ListenerAdapter {
                         betStats.setTitle(finalResults.getPlayer2() + " wins vs. " + finalResults.getPlayer1() + "!");
                         betStats.setDescription("Stats!");
                         betStats.setColor(Color.decode("#852eff"));
-                        double p2Percentage = finalResults.getP2Total() / (finalResults.getP2Total() + finalResults.getP1Total());
+                        double p2Percentage = (double)finalResults.getP2Total() / (double)(finalResults.getP2Total() + finalResults.getP1Total());
                         p2Percentage = Math.round(p2Percentage * 100);
                         betStats.addField(finalResults.getPlayer2() + " ("+ p2Percentage+"%): ",finalResults.getPlayer2Bets().size() + " bets, " + ((double)finalResults.getP2Total())/100 + "<:sharqcoin:413785618573819905> total.", false);
                         betStats.addField(finalResults.getPlayer1() + " ("+ (100 - p2Percentage)+"%): ",finalResults.getPlayer1Bets().size() + " bets, " + ((double)finalResults.getP1Total())/100 + "<:sharqcoin:413785618573819905> total.", false);
@@ -427,6 +427,7 @@ public class SharqCoinListener extends ListenerAdapter {
                             List<Bet> topP2List = finalResults.getPlayer2TopBets();
 
                             for (int i = 0; i < topP2List.size(); i++) {
+
                                 topBets2.append(topP2List.get(i).getUser().getName() + " (" + ((double)topP2List.get(i).getAmount())/100 + "<:sharqcoin:413785618573819905>)");
                                 if(i != topP2List.size() - 1) {
                                     topBets2.append(", ");
@@ -503,8 +504,18 @@ public class SharqCoinListener extends ListenerAdapter {
                 //0    1      2
 
 
-                if (Double.parseDouble(command[1]) < 1) {
-                    channel.sendMessage("Please bet at least 1!").queue();
+                if(command.length < 3) {
+                    channel.sendMessage("Usage: `!bet amount user`").queue();
+                    return;
+                }
+                try {
+
+                    if (Double.parseDouble(command[1]) < 1) {
+                        channel.sendMessage("Please bet at least 1!").queue();
+                        return;
+                    }
+                } catch(NumberFormatException ignored) {
+                    channel.sendMessage("Usage: `!bet amount user`").queue();
                     return;
                 }
 
@@ -536,10 +547,12 @@ public class SharqCoinListener extends ListenerAdapter {
                         }
 
                         //add new bet
-                        o.addToPlayer1Bets(new Bet(bettingUser, betAmount));
                         //take out sharqcoin
-                        addBet(channel, betAmount, bettingUser);
-                        channel.sendMessage("Bet cast for " + playerToBet + "! Amount: " + ((double)betAmount)/100).queue();
+                        if(addBet(channel, betAmount, bettingUser)) {
+                            o.addToPlayer1Bets(new Bet(bettingUser, betAmount));
+                            channel.sendMessage("Bet cast for " + playerToBet + "! Amount: " + ((double)betAmount)/100).queue();
+
+                        }
 
                         break;
                     }
@@ -558,10 +571,12 @@ public class SharqCoinListener extends ListenerAdapter {
                             }
                         }
 
-                        o.addToPlayer2Bets(new Bet(bettingUser, betAmount));
 
-                        addBet(channel, betAmount, bettingUser);
-                        channel.sendMessage("Bet cast for " + playerToBet + "! Amount: " + ((double)betAmount)/100).queue();
+                        if(addBet(channel, betAmount, bettingUser)) {
+                            o.addToPlayer2Bets(new Bet(bettingUser, betAmount));
+                            channel.sendMessage("Bet cast for " + playerToBet + "! Amount: " + ((double)betAmount)/100).queue();
+
+                        }
 
 
                         break;
@@ -582,7 +597,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
     }
 
-    private void addBet(MessageChannel channel, int betAmount, User bettingUser) {
+    private boolean addBet(MessageChannel channel, int betAmount, User bettingUser) {
         try {
 
             JSONObject bettingUserJSON = getUser(bettingUser);
@@ -593,6 +608,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
             if (betAmount > Integer.parseInt(bettingUserJSON.get("amount").toString())) {
                 channel.sendMessage("Insufficient funds!").queue();
+                return false;
             } else {
                 users.remove(getUser(bettingUser));
 
@@ -604,10 +620,13 @@ public class SharqCoinListener extends ListenerAdapter {
                 jsonFile.write(users.toJSONString());
                 jsonFile.flush();
                 jsonFile.close();
+
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+        return true;
+
     }
 
     private int inputToInt(double input) {
