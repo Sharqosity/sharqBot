@@ -1,1 +1,1 @@
-java -jar sharqBot.jar
+java -jar ReflexServerBot.jar
