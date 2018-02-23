@@ -84,13 +84,25 @@ public class SharqCoinListener extends ListenerAdapter {
                 sharqCoinReply.addField("Other Commands", "Check your current sharqcoin balance with `!wallet`, and view the leaderboards with `!top5`", false);
                 channel.sendMessage(sharqCoinReply.build()).queue();
 
+
+
+
             } else if (command[0].equalsIgnoreCase("!wallet")) {
 
                 JSONObject userFound = getUser(message.getAuthor());
 
                 assert userFound != null;
                 channel.sendMessage("You have " + ((double) Integer.parseInt(userFound.get("amount").toString())) / 100 + "<:sharqcoin:413785618573819905> in your wallet.").queue();
+
+
+
+
             } else if (command[0].equalsIgnoreCase("!send")) {
+
+                if(message.getAuthor() == message.getMentionedUsers().get(0)) {
+                    channel.sendMessage("You cannot send to yourself!").queue();
+                    return;
+                }
 
                 if (Double.parseDouble(command[1]) < 0.01) {
                     channel.sendMessage("Please send an amount higher than 0.01!").queue();
@@ -498,29 +510,35 @@ public class SharqCoinListener extends ListenerAdapter {
             String[] command = content.split(" ", 4);
 
             if (command[0].equalsIgnoreCase("!bet")) {
-
-
                 //!bet amount playerName
                 //0    1      2
 
+                int betAmount;
 
                 if(command.length < 3) {
                     channel.sendMessage("Usage: `!bet amount user`").queue();
                     return;
                 }
-                try {
 
-                    if (Double.parseDouble(command[1]) < 1) {
-                        channel.sendMessage("Please bet at least 1!").queue();
+                if(command[1].equalsIgnoreCase("all")) {
+                    betAmount = Integer.parseInt(getUser(message.getAuthor()).get("amount").toString());
+                } else {
+                    try {
+                        if (Double.parseDouble(command[1]) < 1) {
+                            channel.sendMessage("Please bet at least 1!").queue();
+                            return;
+                        }
+                    } catch(NumberFormatException ignored) {
+                        channel.sendMessage("Usage: `!bet amount user`").queue();
                         return;
                     }
-                } catch(NumberFormatException ignored) {
-                    channel.sendMessage("Usage: `!bet amount user`").queue();
-                    return;
+
+                    betAmount = inputToInt(Double.parseDouble(command[1]));
+
                 }
 
+
 //                int betAmount = (int)(Math.round(Double.parseDouble(command[1])*100));
-                int betAmount = inputToInt(Double.parseDouble(command[1]));
                 String playerToBet = command[2];
                 User bettingUser = message.getAuthor();
 
