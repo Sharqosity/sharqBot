@@ -79,7 +79,7 @@ public class SharqCoinListener extends ListenerAdapter {
                         "- Help organize or stream aforementioned community events!\n" +
                         "- Host Sushiflex servers - 15<:sharqcoin:413785618573819905> per server per month!", false);
                 sharqCoinReply.addField("What can I do with Sharqcoin?", "- You can send sharqcoin to other users with `!send amount @user`\n" +
-                        "- Bet on sushiflex tournament games (planned feature coming soon)\n" +
+                        "- Bet on sushiflex tournament games\n" +
                         "- Hoard it and become a millionaire", false);
                 sharqCoinReply.addField("Other Commands", "Check your current sharqcoin balance with `!wallet`, and view the leaderboards with `!top5`", false);
                 channel.sendMessage(sharqCoinReply.build()).queue();
@@ -372,6 +372,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
                     } else {
                         betStats.setTitle(finalResults.getPlayer1() + " wins vs. " + finalResults.getPlayer2() + "!");
+                        betStats.setDescription("Stats!");
                         betStats.setColor(Color.decode("#852eff"));
                         double p1Percentage = finalResults.getP1Total() / (finalResults.getP1Total() + finalResults.getP2Total());
                         p1Percentage = Math.round(p1Percentage * 100);
@@ -414,6 +415,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
                     } else {
                         betStats.setTitle(finalResults.getPlayer2() + " wins vs. " + finalResults.getPlayer1() + "!");
+                        betStats.setDescription("Stats!");
                         betStats.setColor(Color.decode("#852eff"));
                         double p2Percentage = finalResults.getP2Total() / (finalResults.getP2Total() + finalResults.getP1Total());
                         p2Percentage = Math.round(p2Percentage * 100);

@@ -67,6 +67,15 @@ public class Listener extends ListenerAdapter {
             sharqCoinReply.addField("!top5", "forbes list of top billionaires", false);
             channel.sendMessage(sharqCoinReply.build()).queue();
 
+
+            EmbedBuilder betReply = new EmbedBuilder();
+            betReply.setTitle("Betting Commands");
+            betReply.setColor(Color.decode("#6C0EF7"));
+            betReply.addField("PM the bot: !bet <amount> <player>", "Places a wager on a player who is part of an open bet", false);
+            betReply.addField("!openbets","Lists current games open for betting",false);
+            betReply.addField("!closedbets","Lists current in-progress games",false);
+            channel.sendMessage(betReply.build()).queue();
+
 //                EmbedBuilder pickupReply = new EmbedBuilder();
 //                pickupReply.setTitle("Pickup Commands");
 //                pickupReply.setDescription("|");
