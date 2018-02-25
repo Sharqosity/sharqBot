@@ -26,6 +26,7 @@ public class SharqCoinListener extends ListenerAdapter {
     private final int DUEL_REWARD = 100;
     private final int DOUBLES_REWARD = 400;
     private final int CTF_REWARD = 800;
+    private final int CA_REWARD = 600;
     private final int THREE_DAY_STREAK_REWARD = 500;
 
     private ArrayList<OpenBet> openBets = new ArrayList<>();
@@ -201,7 +202,10 @@ public class SharqCoinListener extends ListenerAdapter {
                             playerReward = DOUBLES_REWARD;
                         } else if (command[0].equalsIgnoreCase("**CTF**")) {
                             playerReward = CTF_REWARD;
-                        } else {
+                        } else if (command[0].equalsIgnoreCase("**CA**")) {
+                            playerReward = CA_REWARD;
+                        }
+                        else {
                             channel.sendMessage("Pickup mode not found!").queue();
                             return;
                         }
