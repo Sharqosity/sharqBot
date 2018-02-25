@@ -25,6 +25,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
     private final int DUEL_REWARD = 100;
     private final int DOUBLES_REWARD = 400;
+    private final int CTF_REWARD = 800;
     private final int THREE_DAY_STREAK_REWARD = 500;
 
     private ArrayList<OpenBet> openBets = new ArrayList<>();
@@ -198,7 +199,10 @@ public class SharqCoinListener extends ListenerAdapter {
                             playerReward = DUEL_REWARD;
                         } else if (command[0].equalsIgnoreCase("**2v2**")) {
                             playerReward = DOUBLES_REWARD;
+                        } else if (command[0].equalsIgnoreCase("**CTF**")) {
+                            playerReward = CTF_REWARD;
                         } else {
+                            channel.sendMessage("Pickup mode not found!").queue();
                             return;
                         }
 
@@ -450,7 +454,7 @@ public class SharqCoinListener extends ListenerAdapter {
                                 }
                             }
 
-                            betStats.addField("Top bets for " + finalResults.getPlayer1() + ": ", topBets2.toString(), false);
+                            betStats.addField("Top bets for " + finalResults.getPlayer2() + ": ", topBets2.toString(), false);
                         }
                     }
 
@@ -480,7 +484,7 @@ public class SharqCoinListener extends ListenerAdapter {
                                 }
                             }
 
-                            betStats.addField("Top bets for " + finalResults.getPlayer1() + ": ", topBets2.toString(), false);
+                            betStats.addField("Top bets for " + finalResults.getPlayer2() + ": ", topBets2.toString(), false);
                         }
 
                         if(!(finalResults.getPlayer1Bets().size() == 0)) {
