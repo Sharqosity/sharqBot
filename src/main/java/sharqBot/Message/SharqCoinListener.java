@@ -92,7 +92,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 JSONObject userFound = JSONDude.getUser(message.getAuthor());
 
                 assert userFound != null;
-                channel.sendMessage("You have " + ((double) Integer.parseInt(userFound.get("amount").toString())) / 100 + "<:sharqcoin:413785618573819905> in your wallet.").queue();
+                channel.sendMessage(userFound.get("Name").toString() + ", you have " + ((double) Integer.parseInt(userFound.get("amount").toString())) / 100 + "<:sharqcoin:413785618573819905> in your wallet.").queue();
 
 
 
