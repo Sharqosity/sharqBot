@@ -707,7 +707,7 @@ public class SharqCoinListener extends ListenerAdapter {
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1) {
                 if ((streak + 1) % 3 == 0) {
                     playerReward += THREE_DAY_STREAK_REWARD;
-                    response += ". " + streak + " day streak! \uD83D\uDD25 +" + ((double) THREE_DAY_STREAK_REWARD) / 100 + "<:sharqcoin:413785618573819905> \n";
+                    response += ". " + (streak+1) + " day streak! \uD83D\uDD25 +" + ((double) THREE_DAY_STREAK_REWARD) / 100 + "<:sharqcoin:413785618573819905> \n";
 
                 } else {
                     response += "\n";
