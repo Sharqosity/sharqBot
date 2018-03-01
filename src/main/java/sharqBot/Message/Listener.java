@@ -91,17 +91,17 @@ public class Listener extends ListenerAdapter {
                 EmbedBuilder cointoss = new EmbedBuilder();
                 if (message.getAuthor().getId().equals("95641408530026496")) {
                     if (command[1].equalsIgnoreCase("heads")) {
-                        cointoss.addField("","Coin toss result is: heads!",false);
+                        cointoss.setTitle("Coin toss result is: heads!");
 
                     } else {
-                        cointoss.addField("","Coin toss result is: tails!",false);
+                        cointoss.setTitle("Coin toss result is: tails!");
 
                     }
                 } else {
                     if (command[1].equalsIgnoreCase("heads")) {
-                        cointoss.addField("","Coin toss result is: tails!",false);
+                        cointoss.setTitle("Coin toss result is: tails!");
                     } else {
-                        cointoss.addField("","Coin toss result is: heads!",false);
+                        cointoss.setTitle("Coin toss result is: heads!");
                     }
                 }
                 channel.sendMessage(cointoss.build()).queue();
