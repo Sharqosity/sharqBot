@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 
 public class JSONDude {
 
-
-
-
-
     public static JSONObject getUser(User targetUser) {
         JSONParser parser = new JSONParser();
         try {
@@ -44,8 +40,6 @@ public class JSONDude {
             jsonFile.write(users.toJSONString());
             jsonFile.flush();
             jsonFile.close();
-
-
 
             return newUser;
         } catch (IOException | ParseException e) {
