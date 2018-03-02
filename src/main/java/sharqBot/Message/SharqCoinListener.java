@@ -81,12 +81,10 @@ public class SharqCoinListener extends ListenerAdapter {
                 channel.sendMessage(sharqCoinReply.build()).queue();
 
 
-
             } else if (command[0].equalsIgnoreCase("!wallet")) {
                 JSONObject userFound = JSONDude.getUser(message.getAuthor());
                 assert userFound != null;
                 channel.sendMessage(new EmbedBuilder().setTitle(userFound.get("Name").toString() + ", you have " + ((double) Integer.parseInt(userFound.get("amount").toString())) / 100 + "<:sharqcoin:413785618573819905> in your wallet.").build()).queue();
-
 
 
             } else if (command[0].equalsIgnoreCase("!send")) {
@@ -95,11 +93,11 @@ public class SharqCoinListener extends ListenerAdapter {
                 }
                 EmbedBuilder sendReply = new EmbedBuilder();
                 if (message.getAuthor() == message.getMentionedUsers().get(0)) {
-                    sendReply.addField("","You cannot send to yourself!",false);
+                    sendReply.addField("", "You cannot send to yourself!", false);
                     channel.sendMessage(sendReply.build()).queue();
                     return;
                 } else if (Double.parseDouble(command[1]) < 0.01) {
-                    sendReply.addField("","Please send an amount higher than 0.01!",false);
+                    sendReply.addField("", "Please send an amount higher than 0.01!", false);
                     channel.sendMessage(sendReply.build()).queue();
                     return;
                 }
@@ -111,7 +109,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
                     assert userFound != null;
                     if (sendAmount > Integer.parseInt(userFound.get("amount").toString())) {
-                        sendReply.addField("","Insufficient funds!",false);
+                        sendReply.addField("", "Insufficient funds!", false);
                         channel.sendMessage(sendReply.build()).queue();
 
                     } else if (sendAmount > 0) {
@@ -126,11 +124,11 @@ public class SharqCoinListener extends ListenerAdapter {
                         targetUser.put("amount", Integer.parseInt(targetUser.get("amount").toString()) + sendAmount);
 
                         if (command.length > 3) {
-                            sendReply.addField("",((double) sendAmount) / 100 + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3], false);
+                            sendReply.addField("", ((double) sendAmount) / 100 + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3], false);
                             channel.sendMessage(sendReply.build()).queue();
 
                         } else {
-                            sendReply.addField("",((double) sendAmount / 100) + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".", false);
+                            sendReply.addField("", ((double) sendAmount / 100) + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".", false);
                             channel.sendMessage(sendReply.build()).queue();
 
                         }
@@ -406,9 +404,7 @@ public class SharqCoinListener extends ListenerAdapter {
                     closedBetsList.addField("", "No currently closed bets in progress.", false);
                 }
                 channel.sendMessage(closedBetsList.build()).queue();
-            }
-
-            if (command[0].equalsIgnoreCase("!bet")) { //!bet amount playerName
+            } else if (command[0].equalsIgnoreCase("!bet")) { //!bet amount playerName
 
                 if (event.isFromType(ChannelType.TEXT)) {
                     return;
@@ -491,6 +487,8 @@ public class SharqCoinListener extends ListenerAdapter {
             }
         }
     }
+
+
 
     private boolean addBet(MessageChannel channel, int betAmount, User bettingUser) {
         try {

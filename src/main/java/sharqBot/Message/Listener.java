@@ -203,6 +203,9 @@ public class Listener extends ListenerAdapter {
                                 serverList.add(serverObject);
                             }
                         }
+
+
+
                     }
                 }
                 try {
@@ -236,7 +239,9 @@ public class Listener extends ListenerAdapter {
 
             StringBuilder playerField = new StringBuilder();
             for (String p : s.getPlayerList()) {
-                playerField.append(p).append("\n");
+                if(!p.equals("")) {
+                    playerField.append(p).append("\n");
+                }
             }
             messageReply.addField("Players: ", playerField.toString(), false);
 
