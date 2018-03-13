@@ -48,7 +48,7 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("!ping", "Checks if the bot is online", false);
                 messageReply.addField("!help", "sends help", false);
                 messageReply.addField("!servers", "Lists public Reflex servers with players", false);
-                messageReply.addField("!sushiservers", "Lists public Sushi ruleset servers with players", false);
+//                messageReply.addField("!sushiservers", "Lists public Sushi ruleset servers with players", false);
                 messageReply.addField("!cointoss <heads/tails>", "Flips a coin (not rigged)", false);
                 messageReply.addField("!notify <NA/EU>", "Gives you pickup role", false);
                 messageReply.addField("!removerole <NA/EU>", "Removes pickup role", false);
@@ -141,11 +141,11 @@ public class Listener extends ListenerAdapter {
                     }
                 }
 
-            } else if (command[0].equalsIgnoreCase("!servers") || command[0].equalsIgnoreCase("!sushiservers")) {
+            } else if (command[0].equalsIgnoreCase("!servers")/* || command[0].equalsIgnoreCase("!sushiservers")*/) {
                 boolean sushi = false;
-                if (command[0].equalsIgnoreCase("!sushiservers")) {
-                    sushi = true;
-                }
+//                if (command[0].equalsIgnoreCase("!sushiservers")) {
+//                    sushi = true;
+//                }
 
                 ArrayList<Server> serverList = new ArrayList<>();
                 URL syncoreSite;
@@ -192,17 +192,19 @@ public class Listener extends ListenerAdapter {
 
                         }
 
-                        if (sushi) {
-                            if ((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
-                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
-                                serverList.add(serverObject);
-                            }
-                        } else {
-                            if (!version.equals("1.1.2expplus") && !version.equals("1.1.4expplus")) {
-                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
-                                serverList.add(serverObject);
-                            }
-                        }
+//                        if (sushi) {
+////                            if ((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
+////                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+////                                serverList.add(serverObject);
+////                            }
+////                        } else {
+////                            if (!version.equals("1.1.2expplus") && !version.equals("1.1.4expplus")) {
+////                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+////                                serverList.add(serverObject);
+////                            }
+////                        }
+                        Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+                        serverList.add(serverObject);
 
 
 

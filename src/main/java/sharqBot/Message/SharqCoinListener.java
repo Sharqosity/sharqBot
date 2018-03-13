@@ -93,11 +93,11 @@ public class SharqCoinListener extends ListenerAdapter {
                 }
                 EmbedBuilder sendReply = new EmbedBuilder();
                 if (message.getAuthor() == message.getMentionedUsers().get(0)) {
-                    sendReply.addField("", "You cannot send to yourself!", false);
+                    sendReply.setTitle("You cannot send to yourself!");
                     channel.sendMessage(sendReply.build()).queue();
                     return;
                 } else if (Double.parseDouble(command[1]) < 0.01) {
-                    sendReply.addField("", "Please send an amount higher than 0.01!", false);
+                    sendReply.setTitle("Please send an amount higher than 0.01!");
                     channel.sendMessage(sendReply.build()).queue();
                     return;
                 }
@@ -109,7 +109,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
                     assert userFound != null;
                     if (sendAmount > Integer.parseInt(userFound.get("amount").toString())) {
-                        sendReply.addField("", "Insufficient funds!", false);
+                        sendReply.setTitle("Insufficient funds!");
                         channel.sendMessage(sendReply.build()).queue();
 
                     } else if (sendAmount > 0) {
@@ -124,11 +124,11 @@ public class SharqCoinListener extends ListenerAdapter {
                         targetUser.put("amount", Integer.parseInt(targetUser.get("amount").toString()) + sendAmount);
 
                         if (command.length > 3) {
-                            sendReply.addField("", ((double) sendAmount) / 100 + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3], false);
+                            sendReply.setTitle(((double) sendAmount) / 100 + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ". Message: " + command[3]);
                             channel.sendMessage(sendReply.build()).queue();
 
                         } else {
-                            sendReply.addField("", ((double) sendAmount / 100) + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".", false);
+                            sendReply.setTitle(((double) sendAmount / 100) + "<:sharqcoin:413785618573819905> sent to " + targetUser.get("Name").toString() + ".");
                             channel.sendMessage(sendReply.build()).queue();
 
                         }
