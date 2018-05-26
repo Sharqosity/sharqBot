@@ -22,6 +22,7 @@ public class JSONDude {
                 JSONObject user = (JSONObject) u;
                 if (targetUser.getId().equalsIgnoreCase(user.get("id").toString())) {
                     user.put("Name", targetUser.getName());
+
                     FileWriter jsonFile = new FileWriter("./sharqcoin.json");
                     jsonFile.write(users.toJSONString());
                     jsonFile.flush();
@@ -35,6 +36,11 @@ public class JSONDude {
             newUser.put("amount", 0);
             newUser.put("streak", 0);
             newUser.put("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
+            newUser.put("pickupsPlayed_1v1", 0);
+            newUser.put("pickupsPlayed_2v2", 0);
+            newUser.put("pickupsPlayed_CA", 0);
+            newUser.put("pickupsPlayed_TDM", 0);
+            newUser.put("pickupsPlayed_CTF", 0);
             users.add(newUser);
             FileWriter jsonFile = new FileWriter("./sharqcoin.json");
             jsonFile.write(users.toJSONString());

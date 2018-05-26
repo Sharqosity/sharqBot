@@ -12,7 +12,9 @@ import org.json.simple.parser.ParseException;
 import java.awt.*;
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,11 +26,12 @@ import java.util.concurrent.TimeUnit;
 public class SharqCoinListener extends ListenerAdapter {
 
     private final int DUEL_REWARD = 100;
-    private final int DOUBLES_REWARD = 400;
-    private final int CTF_REWARD = 800;
-    private final int CA_REWARD = 600;
-    private final int TDM_REWARD = 800;
+    private final int DOUBLES_REWARD = 300;
+    private final int CTF_REWARD = 700;
+    private final int CA_REWARD = 500;
+    private final int TDM_REWARD = 700;
     private final int THREE_DAY_STREAK_REWARD = 500;
+    private final int MODE_BONUS = 300;
 
     private ArrayList<OpenBet> openBets = new ArrayList<>();
     private ArrayList<OpenBet> closedBets = new ArrayList<>();
@@ -51,6 +54,8 @@ public class SharqCoinListener extends ListenerAdapter {
         ScheduledExecutorService backupService = Executors.newSingleThreadScheduledExecutor();
         backupService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
     }
+
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -179,33 +184,75 @@ public class SharqCoinListener extends ListenerAdapter {
                     Object obj = parser.parse(new FileReader("./sharqcoin.json"));
                     JSONArray users = (JSONArray) obj;
                     StringBuilder response = new StringBuilder();
+
                     for (User u : message.getMentionedUsers()) {
+                        int mode = 0;
                         int playerReward;
                         if (command[0].equalsIgnoreCase("**1v1**")) {
                             playerReward = DUEL_REWARD;
+                            mode = 1;
                         } else if (command[0].equalsIgnoreCase("**2v2**")) {
                             playerReward = DOUBLES_REWARD;
-                        } else if (command[0].equalsIgnoreCase("**CTF**")) {
-                            playerReward = CTF_REWARD;
+                            mode = 2;
                         } else if (command[0].equalsIgnoreCase("**CA**")) {
                             playerReward = CA_REWARD;
+                            mode = 3;
                         } else if (command[0].equalsIgnoreCase("**TDM**")) {
                             playerReward = TDM_REWARD;
+                            mode = 4;
+                        } else if (command[0].equalsIgnoreCase("**CTF**")) {
+                            playerReward = CTF_REWARD;
+                            mode = 5;
                         } else {
                             channel.sendMessage("Pickup mode not found!").queue();
                             return;
                         }
+
+                        //Checks if current time is during Sushi Sunday. Do not run this in a non-EST timezone lol
+                        if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
+                            if (LocalDateTime.now().toLocalTime().isAfter(LocalTime.of(13, 0)) && LocalDateTime.now().toLocalTime().isBefore(LocalTime.of(18, 0)))
+                                playerReward *= 2;
+                        }
+
                         JSONObject playerJSON = JSONDude.getUser(u);
                         users.remove(playerJSON);
                         boolean playerReceives = true;
                         long minutesSinceLastPickup = ChronoUnit.MINUTES.between(LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString()), LocalDateTime.now());
-                        if (minutesSinceLastPickup < 10L) {
-                            playerReceives = false;
-                            channel.sendMessage("It hasn't even been 10 minutes since your last pickup <@" + playerJSON.get("id") + ">, what are you doing dude").queue();
+
+                        if (mode > 1) {
+                            if (minutesSinceLastPickup < 20L) {
+                                playerReceives = false;
+                                channel.sendMessage("It hasn't even been 20 minutes since your last pickup <@" + playerJSON.get("id") + ">, what are you doing dude").queue();
+                            }
+                        } else {
+                            if (minutesSinceLastPickup < 10L) {
+                                playerReceives = false;
+                                channel.sendMessage("It hasn't even been 10 minutes since your last pickup <@" + playerJSON.get("id") + ">, what are you doing dude").queue();
+                            }
                         }
-                        response.append(getPlayerReward(playerReward, playerJSON, playerReceives));
+                        response.append(getPlayerReward(playerReward, playerJSON, playerReceives, mode));
                         playerJSON.put("lastPlayedPickup", LocalDateTime.now().toString());
+                        //tracks amount of pickups played
+                        switch (mode) {
+                            case 1:
+                                playerJSON.put("pickupsPlayed_1v1", playerJSON.get("pickupsPlayed_1v1").toString() + 1);
+                                break;
+                            case 2:
+                                playerJSON.put("pickupsPlayed_2v2", playerJSON.get("pickupsPlayed_2v2").toString() + 1);
+                                break;
+                            case 3:
+                                playerJSON.put("pickupsPlayed_CA", playerJSON.get("pickupsPlayed_CA").toString() + 1);
+                                break;
+                            case 4:
+                                playerJSON.put("pickupsPlayed_TDM", playerJSON.get("pickupsPlayed_TDM").toString() + 1);
+                                break;
+                            case 5:
+                                playerJSON.put("pickupsPlayed_CTF", playerJSON.get("pickupsPlayed_CTF").toString() + 1);
+                                break;
+                        }
+
                         users.add(playerJSON);
+
                         FileWriter jsonFile = new FileWriter("./sharqcoin.json");
                         jsonFile.write(users.toJSONString());
                         jsonFile.flush();
@@ -491,8 +538,6 @@ public class SharqCoinListener extends ListenerAdapter {
         }
     }
 
-
-
     private boolean addBet(MessageChannel channel, int betAmount, User bettingUser) {
         try {
 
@@ -530,7 +575,7 @@ public class SharqCoinListener extends ListenerAdapter {
         return (int) (Math.round(input * 100));
     }
 
-    private String getPlayerReward(int playerReward, JSONObject playerJSON, boolean playerReceives) {
+    private String getPlayerReward(int playerReward, JSONObject playerJSON, boolean playerReceives, int mode) {
         String response = "";
 
         int streak = Integer.parseInt(playerJSON.get("streak").toString());
@@ -538,32 +583,96 @@ public class SharqCoinListener extends ListenerAdapter {
 
             response += "Pickup rewards for " + playerJSON.get("Name").toString() + ": " + ((double) playerReward) / 100 + "<:sharqcoin:413785618573819905>";
 
+            //checks streak
             if (streak == 0) {
                 playerJSON.put("streak", 1);
-                response += "\n";
+//                response += "\n";
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 1) {
                 if ((streak + 1) % 3 == 0) {
                     playerReward += THREE_DAY_STREAK_REWARD;
                     response += ". " + (streak + 1) + " day streak! \uD83D\uDD25 +" + ((double) THREE_DAY_STREAK_REWARD) / 100 + "<:sharqcoin:413785618573819905> \n";
 
                 } else {
-                    response += "\n";
+//                    response += "\n";
                 }
 
                 playerJSON.put("streak", Integer.parseInt(playerJSON.get("streak").toString()) + 1);
 
             } else if (LocalDateTime.now().getDayOfMonth() - (LocalDateTime.parse(playerJSON.get("lastPlayedPickup").toString())).getDayOfMonth() == 0) {
-                response += "\n";
+//                response += "\n";
             } else {
                 playerJSON.put("streak", 0);
+//                response += "\n";
+            }
+
+
+            //checks for sushi sunday mode bonus
+            if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
+                if (LocalDateTime.now().toLocalTime().isAfter(LocalTime.of(13, 0)) && LocalDateTime.now().toLocalTime().isBefore(LocalTime.of(18, 0))) {
+
+                    int weeksElapsed = 0;
+                    weeksElapsed = getWeeksElapsed();
+                    switch (weeksElapsed%4) {
+                        //doubles
+                        case 0: if(mode == 2) {
+                            playerReward += MODE_BONUS;
+                            response += ". Sushi Sundays doubles bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                        } else {
+                            response += "\n";
+                        }
+                        break;
+
+                        //ca
+                        case 1: if(mode == 3) {
+                            playerReward += MODE_BONUS;
+                            response += ". Sushi Sundays clan arena bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                        } else {
+                            response += "\n";
+                        }
+                        break;
+
+                        //tdm
+                        case 2: if(mode == 4) {
+                            playerReward += MODE_BONUS;
+                            response += ". Sushi Sundays tdm bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                        } else {
+                            response += "\n";
+                        }
+                        break;
+
+                        //ctf
+                        case 3: if(mode == 5) {
+                            playerReward += MODE_BONUS;
+                            response += ". Sushi Sundays ctf bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                        } else {
+                            response += "\n";
+                        }
+                        break;
+
+                    }
+                } else {
+                    response += "\n";
+                }
+            } else {
                 response += "\n";
             }
 
-            playerJSON.put("amount", Integer.parseInt(playerJSON.get("amount").toString()) + playerReward);
 
+
+            playerJSON.put("amount", Integer.parseInt(playerJSON.get("amount").toString()) + playerReward);
         }
         return response;
 
     }
 
+    public static int getWeeksElapsed() {
+
+        LocalDateTime start = LocalDateTime.of(2018, 5, 26, 1, 0); //day before start of sushi sundays
+        LocalDateTime now = LocalDateTime.now();
+
+        return (int) ChronoUnit.WEEKS.between(start, now);
+    }
 }
+
+
+
