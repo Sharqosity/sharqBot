@@ -798,7 +798,7 @@ public class SharqCoinListener extends ListenerAdapter {
             //checks if intended pm target is not original promoter
             if (m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
                 m.getUser().openPrivateChannel().queue((privateChannel -> {
-                    privateChannel.sendMessage(((double)PROMOTE_COST)/100 + "<:sharqcoin:413785618573819905> deducted to promote!");
+                    privateChannel.sendMessage(((double)PROMOTE_COST)/100 + "<:sharqcoin:413785618573819905> deducted to promote!").queue();
                 }));
             } else {
                 for (Role r : m.getRoles()) {
