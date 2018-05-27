@@ -36,7 +36,7 @@ public class SharqCoinListener extends ListenerAdapter {
     private final int THREE_DAY_STREAK_REWARD = 500;
     private final int MODE_BONUS = 300;
 
-    private final int PROMOTE_COST = 400;
+    private final int PROMOTE_COST = 399;
 
     private ArrayList<OpenBet> openBets = new ArrayList<>();
     private ArrayList<OpenBet> closedBets = new ArrayList<>();
@@ -786,7 +786,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
         //checks if promoter has enough sharqcoin
         assert promotingUser != null;
-        if (400 > Integer.parseInt(promotingUser.get("amount").toString())) {
+        if (399 > Integer.parseInt(promotingUser.get("amount").toString())) {
             channel.sendMessage("Insufficient funds! (4<:sharqcoin:413785618573819905> required)").queue();
             return;
         }
@@ -796,7 +796,11 @@ public class SharqCoinListener extends ListenerAdapter {
         Guild messageGuild = message.getGuild();
         for (Member m : messageGuild.getMembers()) {
             //checks if intended pm target is not original promoter
-            if (!m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
+            if (m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
+                m.getUser().openPrivateChannel().queue((privateChannel -> {
+                    privateChannel.sendMessage(((double)PROMOTE_COST)/100 + "<:sharqcoin:413785618573819905> deducted to promote!");
+                }));
+            } else {
                 for (Role r : m.getRoles()) {
                     if (r.getName().equalsIgnoreCase(roleName)) {
                         m.getUser().openPrivateChannel().queue((privateChannel) -> {
@@ -816,7 +820,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
             users.remove(promotingUser);
 
-            promotingUser.put("amount", Integer.parseInt(promotingUser.get("amount").toString()) - 400);
+            promotingUser.put("amount", Integer.parseInt(promotingUser.get("amount").toString()) - PROMOTE_COST);
             promotingUser.put("lastPromote", LocalDateTime.now().toString());
 
 
@@ -825,7 +829,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
             users.add(promotingUser);
             FileWriter jsonFile = new FileWriter("./sharqcoin.json");
-            jsonFile.write(promotingUser.toJSONString());
+            jsonFile.write(users.toJSONString());
             jsonFile.flush();
             jsonFile.close();
 
