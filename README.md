@@ -1,11 +1,34 @@
-# SharqBot
-##### A Discord bot
+# ReflexServerBot
+##### Discord bot for Sushiflex
 
-**1st Law.** A robot may not injure a human being or, through inaction, allow a human being to come to harm.  
-**2nd Law.** A robot must obey orders given it by human beings except where such orders would conflict with the First Law.  
-**3rd Law.** A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.  
-  
-**0th Law.** A robot may not harm humanity, or, by inaction, allow humanity to come to harm.  
+Sharqcoin FAQ
+
+hottest digital meme currency right now
+
+
+What is Sharqcoin?
+
+Sharqcoin is a fun way of rewarding participation and activity in the Sushiflex community!
+
+How can I get Sharqcoin?
+
+- Play pickups! You earn 1 sharqcoin everytime you start a duel pickup, 4 sharqcoin for doubles. Hit a 3-day streak for a 5 sharqcoin reward!
+- Add pickups on Sushi sundays! Double sharqcoin for the duration, and bonus sharqcoin when you add that week's bonus mode!
+- Win community events, including tournaments, mapping competitions, and more for big sharqcoin payouts!
+- Help organize or stream aforementioned community events!
+- Host Sushiflex servers - 15 sharqcoin per server per month!
+
+What can I do with Sharqcoin?
+
+- You can send sharqcoin to other users with `!send amount @user`.
+- Bet on sushiflex tournament games.
+- Sharqcoin shop! Custom roles and promote pickups! More to come.
+- Hoard it and become a millionaire.
+
+Other Commands
+
+Check your current sharqcoin balance with `!wallet`, and view the leaderboards with `!top5`
+
 
 <br />
 <br />
