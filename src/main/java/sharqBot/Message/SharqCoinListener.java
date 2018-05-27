@@ -1,6 +1,7 @@
 package sharqBot.Message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -16,9 +17,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,10 +36,46 @@ public class SharqCoinListener extends ListenerAdapter {
     private final int THREE_DAY_STREAK_REWARD = 500;
     private final int MODE_BONUS = 300;
 
+    private final int PROMOTE_COST = 400;
+
     private ArrayList<OpenBet> openBets = new ArrayList<>();
     private ArrayList<OpenBet> closedBets = new ArrayList<>();
 
-    public SharqCoinListener() {
+    public SharqCoinListener(JDA api) {
+
+        Runnable sushiSunday = () -> {
+            Guild sushiServer = api.getGuildById("435908303181185024");
+            MessageChannel announcements = sushiServer.getTextChannelById("435909048081317888");
+            int weeksElapsed = 0;
+            int[] bonusModeArray = {-1, -1, -1, -1};
+            weeksElapsed = getWeeksElapsed();
+            Random gen = new Random(weeksElapsed / 4);
+            for (int i = 0; i <= weeksElapsed % 4; i++) {
+                int nextMode = gen.nextInt(4);
+                while (nextMode == bonusModeArray[0] || nextMode == bonusModeArray[1] || nextMode == bonusModeArray[2])
+                    nextMode = gen.nextInt(4);
+
+                bonusModeArray[i] = nextMode;
+            }
+            String mode = "";
+            switch (bonusModeArray[weeksElapsed % 4]) {
+                case 0: mode = "doubles"; break;
+                case 1: mode = "clan arena"; break;
+                case 2: mode = "tdm"; break;
+                case 3: mode = "ctf"; break;
+            }
+            System.out.println(mode);
+            announcements.sendMessage("@everyone\n" +
+                    "\uD83C\uDF63 **SUSHI SUNDAY HAS BEGUN** \uD83C\uDF63:\n" +
+                    "Come together for some PUGs for the next **5 hours**. \n" +
+                    "\n" +
+                    "\uD83C\uDF63 **Bonus Mode is: " + mode + "** \n" +
+                    "Enjoy bonus SharqCoins when you queue for " + mode + ".\n" +
+                    "\n" +
+                    "**2X<:sharqcoin:413785618573819905> SharqCoins** are now Enabled.").queue();
+        };
+
+
         Runnable backupSharqCoinDatabase = () -> {
             try {
                 FileChannel src = new FileInputStream("./sharqcoin.json").getChannel();
@@ -51,11 +90,32 @@ public class SharqCoinListener extends ListenerAdapter {
             System.out.println("sharqcoin.json backed up!");
         };
 
-        ScheduledExecutorService backupService = Executors.newSingleThreadScheduledExecutor();
-        backupService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
+//        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+        executorService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
+
+
+        LocalDateTime nextSunday;
+        if(LocalTime.now().isBefore(LocalTime.of(13,0))) {
+            nextSunday = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+            long initialDelay = ChronoUnit.DAYS.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
+            executorService.scheduleAtFixedRate(sushiSunday,initialDelay,7,TimeUnit.DAYS);
+
+        } else if (LocalTime.now().isAfter(LocalTime.of(13,0))) {
+            nextSunday = LocalDateTime.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+            long initialDelay = ChronoUnit.DAYS.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
+            executorService.scheduleAtFixedRate(sushiSunday,initialDelay,7,TimeUnit.DAYS);
+
+        }
     }
 
+    private static int getWeeksElapsed() {
 
+        LocalDateTime start = LocalDateTime.of(2018, 5, 26, 1, 0); //day before start of sushi sundays
+        LocalDateTime now = LocalDateTime.now();
+
+        return (int) ChronoUnit.WEEKS.between(start, now);
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -271,7 +331,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 }
                 boolean roleFound = false;
                 for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
-                    if (r.getName().equalsIgnoreCase("Bet Organizer")) {
+                    if (r.getName().equalsIgnoreCase("Bet Organizer") || r.getName().equalsIgnoreCase("Discord Management")) {
                         roleFound = true;
                         break;
                     }
@@ -307,7 +367,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 String onePlayer = command[1];
                 boolean roleFound = false;
                 for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
-                    if (r.getName().equalsIgnoreCase("Bet Organizer")) {
+                    if (r.getName().equalsIgnoreCase("Bet Organizer") || r.getName().equalsIgnoreCase("Discord Management")) {
                         roleFound = true;
                         break;
                     }
@@ -337,7 +397,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 String winner = command[1];
                 boolean roleFound = false;
                 for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
-                    if (r.getName().equalsIgnoreCase("Bet Organizer")) {
+                    if (r.getName().equalsIgnoreCase("Bet Organizer") || r.getName().equalsIgnoreCase("Discord Management")) {
                         roleFound = true;
                         break;
                     }
@@ -537,16 +597,16 @@ public class SharqCoinListener extends ListenerAdapter {
             } else if (command[0].equalsIgnoreCase("+promote")) {
 
 
-                if(channel.getId().equalsIgnoreCase("435988653660176396")) { //GLOBAL
-                    promote(message,channel.getId(), "GLOBAL");
-                } else if(channel.getId().equalsIgnoreCase("435988103388332054")) { //NORTH AMERICA
-                    promote(message,channel.getId(),"NA");
-                } else if(channel.getId().equalsIgnoreCase("435988172556599296")) { //EUROPE
-                    promote(message,channel.getId(),"EU");
-                } else if(channel.getId().equalsIgnoreCase("450090865789108225")) { //AUSTRALIA
-                    promote(message,channel.getId(),"AU");
-                } else if(channel.getId().equalsIgnoreCase("435988193783971840")) { //SOUTHEAST ASIA
-                    promote(message,channel.getId(),"SEA");
+                if (channel.getId().equalsIgnoreCase("435988653660176396")) { //GLOBAL
+                    promote(message, channel.getId(), "GLOBAL");
+                } else if (channel.getId().equalsIgnoreCase("435988103388332054")) { //NORTH AMERICA
+                    promote(message, channel.getId(), "NA");
+                } else if (channel.getId().equalsIgnoreCase("435988172556599296")) { //EUROPE
+                    promote(message, channel.getId(), "EU");
+                } else if (channel.getId().equalsIgnoreCase("450090865789108225")) { //AUSTRALIA
+                    promote(message, channel.getId(), "AU");
+                } else if (channel.getId().equalsIgnoreCase("435988193783971840")) { //SOUTHEAST ASIA
+                    promote(message, channel.getId(), "SEA");
                 } else {
                     channel.sendMessage("You cannot promote in this channel!").queue();
                 }
@@ -623,47 +683,72 @@ public class SharqCoinListener extends ListenerAdapter {
 
 
             //checks for sushi sunday mode bonus
+//            if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
+//                if (LocalDateTime.now().toLocalTime().isAfter(LocalTime.of(13, 0)) && LocalDateTime.now().toLocalTime().isBefore(LocalTime.of(18, 0))) {
+//
+//                    int weeksElapsed = 0;
+//                    weeksElapsed = getWeeksElapsed();
+//                    switch (weeksElapsed%4) {
+
+
             if (LocalDateTime.now().getDayOfWeek() == DayOfWeek.SUNDAY) {
                 if (LocalDateTime.now().toLocalTime().isAfter(LocalTime.of(13, 0)) && LocalDateTime.now().toLocalTime().isBefore(LocalTime.of(18, 0))) {
 
+
                     int weeksElapsed = 0;
+                    int[] bonusModeArray = {-1, -1, -1, -1};
+
                     weeksElapsed = getWeeksElapsed();
-                    switch (weeksElapsed%4) {
+                    Random gen = new Random(weeksElapsed / 4);
+                    for (int i = 0; i <= weeksElapsed % 4; i++) {
+                        int nextMode = gen.nextInt(4);
+                        while (nextMode == bonusModeArray[0] || nextMode == bonusModeArray[1] || nextMode == bonusModeArray[2])
+                            nextMode = gen.nextInt(4);
+
+                        bonusModeArray[i] = nextMode;
+                    }
+                    int randomMode = gen.nextInt(4);
+
+                    switch (bonusModeArray[weeksElapsed % 4]) {
                         //doubles
-                        case 0: if(mode == 2) {
-                            playerReward += MODE_BONUS;
-                            response += ". Sushi Sundays doubles bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
-                        } else {
-                            response += "\n";
-                        }
-                        break;
+                        case 0:
+                            if (mode == 2) {
+                                playerReward += MODE_BONUS;
+                                response += ". Sushi Sundays doubles bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                            } else {
+                                response += "\n";
+                            }
+                            break;
 
                         //ca
-                        case 1: if(mode == 3) {
-                            playerReward += MODE_BONUS;
-                            response += ". Sushi Sundays clan arena bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
-                        } else {
-                            response += "\n";
-                        }
-                        break;
+                        case 1:
+                            if (mode == 3) {
+                                playerReward += MODE_BONUS;
+                                response += ". Sushi Sundays clan arena bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                            } else {
+                                response += "\n";
+                            }
+                            break;
 
                         //tdm
-                        case 2: if(mode == 4) {
-                            playerReward += MODE_BONUS;
-                            response += ". Sushi Sundays tdm bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
-                        } else {
-                            response += "\n";
-                        }
-                        break;
+                        case 2:
+                            if (mode == 4) {
+                                playerReward += MODE_BONUS;
+                                response += ". Sushi Sundays tdm bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                            } else {
+                                response += "\n";
+                            }
+                            break;
 
                         //ctf
-                        case 3: if(mode == 5) {
-                            playerReward += MODE_BONUS;
-                            response += ". Sushi Sundays ctf bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
-                        } else {
-                            response += "\n";
-                        }
-                        break;
+                        case 3:
+                            if (mode == 5) {
+                                playerReward += MODE_BONUS;
+                                response += ". Sushi Sundays ctf bonus! +" + ((double) MODE_BONUS) / 100 + "<:sharqcoin:413785618573819905> \n";
+                            } else {
+                                response += "\n";
+                            }
+                            break;
 
                     }
                 } else {
@@ -674,19 +759,10 @@ public class SharqCoinListener extends ListenerAdapter {
             }
 
 
-
             playerJSON.put("amount", Integer.parseInt(playerJSON.get("amount").toString()) + playerReward);
         }
         return response;
 
-    }
-
-    private static int getWeeksElapsed() {
-
-        LocalDateTime start = LocalDateTime.of(2018, 5, 26, 1, 0); //day before start of sushi sundays
-        LocalDateTime now = LocalDateTime.now();
-
-        return (int) ChronoUnit.WEEKS.between(start, now);
     }
 
     private void promote(Message message, String channelId, String roleName) {
@@ -695,13 +771,13 @@ public class SharqCoinListener extends ListenerAdapter {
 
         //checks if promoter has role he is promoting to
         boolean foundRole = false;
-        for (Role r: message.getMember().getRoles()) {
-            if(r.getName().equalsIgnoreCase(roleName)) {
+        for (Role r : message.getMember().getRoles()) {
+            if (r.getName().equalsIgnoreCase(roleName)) {
                 foundRole = true;
             }
         }
-        if(!foundRole) {
-            channel.sendMessage("You cannot promote in this channel without the " + roleName +" role!").queue();
+        if (!foundRole) {
+            channel.sendMessage("You cannot promote in this channel without the " + roleName + " role!").queue();
             return;
         }
 
@@ -719,7 +795,7 @@ public class SharqCoinListener extends ListenerAdapter {
         Guild messageGuild = message.getGuild();
         for (Member m : messageGuild.getMembers()) {
             //checks if intended pm target is not original promoter
-            if(!m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
+            if (!m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
                 for (Role r : m.getRoles()) {
                     if (r.getName().equalsIgnoreCase(roleName)) {
                         m.getUser().openPrivateChannel().queue((privateChannel) -> {
@@ -735,7 +811,7 @@ public class SharqCoinListener extends ListenerAdapter {
 
             //deducts 4 sharqcoin
             JSONParser parser = new JSONParser();
-            JSONArray users = (JSONArray)parser.parse(new FileReader("./sharqcoin.json"));
+            JSONArray users = (JSONArray) parser.parse(new FileReader("./sharqcoin.json"));
 
             users.remove(promotingUser);
 
@@ -758,7 +834,9 @@ public class SharqCoinListener extends ListenerAdapter {
             e.printStackTrace();
         }
     }
+
 }
 
+//\uD83C\uDF63
 
 

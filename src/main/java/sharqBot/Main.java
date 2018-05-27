@@ -50,11 +50,16 @@ public class Main {
 
 
         JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
+
         jdaBuilder.setReconnectQueue(new SessionReconnectQueue());
 
         jdaBuilder.setToken(token);
+
+
+        JDA api = jdaBuilder.buildBlocking();
+
         jdaBuilder.addEventListener(new Listener());
-        jdaBuilder.addEventListener(new SharqCoinListener());
+        jdaBuilder.addEventListener(new SharqCoinListener(api));
 //        jdaBuilder.addEventListener(new PickupListener());
 
         System.out.println("Start time: "+ java.time.LocalDateTime.now());
@@ -66,6 +71,6 @@ public class Main {
 
 
 
-//        JDA api = jdaBuilder.buildBlocking();
+
     }
 }

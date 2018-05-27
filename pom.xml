@@ -7,12 +7,9 @@
     <groupId>com.sharqosity</groupId>
     <artifactId>sharqBot</artifactId>
     <version>2.0</version>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.10.RELEASE</version>
-    </parent>
+
     <build>
+
 
         <plugins>
             <plugin>
@@ -24,10 +21,19 @@
                 </configuration>
             </plugin>
         </plugins>
+
+
     </build>
 
 
+
+
+
+
+
     <repositories>
+
+
         <repository>
             <id>jcenter</id>
             <name>jcenter-bintray</name>
@@ -37,7 +43,14 @@
 
     </repositories>
 
+
+
+
+
+
     <dependencies>
+
+
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
@@ -58,13 +71,8 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-
     </dependencies>
+
 
 
 </project>
