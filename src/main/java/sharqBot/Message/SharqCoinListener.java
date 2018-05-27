@@ -61,11 +61,11 @@ public class SharqCoinListener extends ListenerAdapter {
             switch (bonusModeArray[weeksElapsed % 4]) {
                 case 0: mode = "doubles"; break;
                 case 1: mode = "clan arena"; break;
-                case 2: mode = "tdm"; break;
-                case 3: mode = "ctf"; break;
+                case 2: mode = "TDM"; break;
+                case 3: mode = "CTF"; break;
             }
             System.out.println(mode);
-            announcements.sendMessage("@everyone\n" +
+            announcements.sendMessage("@noteveryone\n" +
                     "\uD83C\uDF63 **SUSHI SUNDAY HAS BEGUN** \uD83C\uDF63:\n" +
                     "Come together for some PUGs for the next **5 hours**. \n" +
                     "\n" +
@@ -96,17 +96,18 @@ public class SharqCoinListener extends ListenerAdapter {
 
 
         LocalDateTime nextSunday;
+        long initialDelay = 0L;
         if(LocalTime.now().isBefore(LocalTime.of(13,0))) {
             nextSunday = LocalDateTime.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-            long initialDelay = ChronoUnit.DAYS.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
-            executorService.scheduleAtFixedRate(sushiSunday,initialDelay,7,TimeUnit.DAYS);
+            initialDelay = ChronoUnit.MINUTES.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
 
         } else if (LocalTime.now().isAfter(LocalTime.of(13,0))) {
             nextSunday = LocalDateTime.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-            long initialDelay = ChronoUnit.DAYS.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
-            executorService.scheduleAtFixedRate(sushiSunday,initialDelay,7,TimeUnit.DAYS);
+            initialDelay = ChronoUnit.MINUTES.between(LocalDateTime.now(), LocalDateTime.of(nextSunday.toLocalDate(),LocalTime.of(13,0)));
+
 
         }
+        executorService.scheduleAtFixedRate(sushiSunday,initialDelay,10080,TimeUnit.MINUTES);
     }
 
     private static int getWeeksElapsed() {
