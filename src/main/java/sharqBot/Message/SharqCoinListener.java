@@ -65,7 +65,7 @@ public class SharqCoinListener extends ListenerAdapter {
                 case 3: mode = "CTF"; break;
             }
             System.out.println(mode);
-            announcements.sendMessage("@noteveryone\n" +
+            announcements.sendMessage("@everyone\n" +
                     "\uD83C\uDF63 **SUSHI SUNDAY HAS BEGUN** \uD83C\uDF63:\n" +
                     "Come together for some PUGs for the next **5 hours**. \n" +
                     "\n" +
