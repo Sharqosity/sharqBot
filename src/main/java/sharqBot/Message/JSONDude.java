@@ -36,6 +36,7 @@ public class JSONDude {
             newUser.put("amount", 0);
             newUser.put("streak", 0);
             newUser.put("lastPlayedPickup", LocalDateTime.of(0, 1, 1, 1, 0).toString());
+            newUser.put("lastPromote", LocalDateTime.of(0, 1, 1, 1, 0).toString());
             newUser.put("pickupsPlayed_1v1", 0);
             newUser.put("pickupsPlayed_2v2", 0);
             newUser.put("pickupsPlayed_CA", 0);

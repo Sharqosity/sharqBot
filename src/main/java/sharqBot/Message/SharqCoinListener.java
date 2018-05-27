@@ -534,6 +534,22 @@ public class SharqCoinListener extends ListenerAdapter {
             } else if (command[0].equalsIgnoreCase("!withdrawbet")) {
                 System.out.println(message.getAuthor().getName() + ": " + content);
 
+            } else if (command[0].equalsIgnoreCase("+promote")) {
+
+
+                if(channel.getId().equalsIgnoreCase("435988653660176396")) { //GLOBAL
+                    promote(message,channel.getId(), "GLOBAL");
+                } else if(channel.getId().equalsIgnoreCase("435988103388332054")) { //NORTH AMERICA
+                    promote(message,channel.getId(),"NA");
+                } else if(channel.getId().equalsIgnoreCase("435988172556599296")) { //EUROPE
+                    promote(message,channel.getId(),"EU");
+                } else if(channel.getId().equalsIgnoreCase("450090865789108225")) { //AUSTRALIA
+                    promote(message,channel.getId(),"AU");
+                } else if(channel.getId().equalsIgnoreCase("435988193783971840")) { //SOUTHEAST ASIA
+                    promote(message,channel.getId(),"SEA");
+                } else {
+                    channel.sendMessage("You cannot promote in this channel!").queue();
+                }
             }
         }
     }
@@ -665,12 +681,82 @@ public class SharqCoinListener extends ListenerAdapter {
 
     }
 
-    public static int getWeeksElapsed() {
+    private static int getWeeksElapsed() {
 
         LocalDateTime start = LocalDateTime.of(2018, 5, 26, 1, 0); //day before start of sushi sundays
         LocalDateTime now = LocalDateTime.now();
 
         return (int) ChronoUnit.WEEKS.between(start, now);
+    }
+
+    private void promote(Message message, String channelId, String roleName) {
+
+        MessageChannel channel = message.getChannel();
+
+        //checks if promoter has role he is promoting to
+        boolean foundRole = false;
+        for (Role r: message.getMember().getRoles()) {
+            if(r.getName().equalsIgnoreCase(roleName)) {
+                foundRole = true;
+            }
+        }
+        if(!foundRole) {
+            channel.sendMessage("You cannot promote in this channel without the " + roleName +" role!").queue();
+            return;
+        }
+
+        JSONObject promotingUser = JSONDude.getUser(message.getAuthor());
+
+        //checks if promoter has enough sharqcoin
+        assert promotingUser != null;
+        if (400 > Integer.parseInt(promotingUser.get("amount").toString())) {
+            channel.sendMessage("Insufficient funds! (4<:sharqcoin:413785618573819905> required)").queue();
+            return;
+        }
+
+
+        //looks for roles and PMs
+        Guild messageGuild = message.getGuild();
+        for (Member m : messageGuild.getMembers()) {
+            //checks if intended pm target is not original promoter
+            if(!m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
+                for (Role r : m.getRoles()) {
+                    if (r.getName().equalsIgnoreCase(roleName)) {
+                        m.getUser().openPrivateChannel().queue((privateChannel) -> {
+                            privateChannel.sendMessage("Please add pickups in <#" + channelId + ">!").queue();
+                        });
+                    }
+                }
+            }
+        }
+
+
+        try {
+
+            //deducts 4 sharqcoin
+            JSONParser parser = new JSONParser();
+            JSONArray users = (JSONArray)parser.parse(new FileReader("./sharqcoin.json"));
+
+            users.remove(promotingUser);
+
+            promotingUser.put("amount", Integer.parseInt(promotingUser.get("amount").toString()) - 400);
+            promotingUser.put("lastPromote", LocalDateTime.now().toString());
+
+
+            channel.sendMessage("PMs sent to players with " + roleName + " role!").queue();
+
+
+            users.add(promotingUser);
+            FileWriter jsonFile = new FileWriter("./sharqcoin.json");
+            jsonFile.write(promotingUser.toJSONString());
+            jsonFile.flush();
+            jsonFile.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }
 
