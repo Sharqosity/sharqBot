@@ -87,7 +87,11 @@ public class Listener extends ListenerAdapter {
                 channel.sendMessage("<@240620731958820864> <@95641408530026496> <@103549948867387392> <@137705421786972162> <@167835741093756928> wannna hop in?").queue();
 
             } else if (command[1].equalsIgnoreCase("dotasquad")) {
-                channel.sendMessage("<@95641408530026496> <@137705421786972162> <@170613427893567488>, time to feed!").queue();
+                if(command.length == 3) {
+                    channel.sendMessage("<@95641408530026496> <@137705421786972162> <@170613427893567488>, "+ command[2]).queue();
+                } else if(command.length < 3) {
+                    channel.sendMessage("<@95641408530026496> <@137705421786972162> <@170613427893567488>, time to feed!").queue();
+                }
             } else if (command[1].equalsIgnoreCase("mtts")) {
                 if (message.getAuthor().getId().equals("95641408530026496") || message.getAuthor().getId().equals("167835741093756928")) {
                     Main.setMuntTTSIsOn(!Main.isMuntTTSIsOn());
