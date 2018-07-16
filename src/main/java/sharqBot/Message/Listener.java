@@ -37,6 +37,13 @@ public class Listener extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
 
         String[] command = content.split(" ", 3);
+        
+        if (message.getGuild().getId().equals("100400971875651584")) {
+            int random = (int)(Math.random()*100);
+            if(random < 1) {
+                channel.sendMessage("yes carol was thic").queue();
+            }
+        }
 
         if (command[0].equals("<@384172837218287616>")) {
 
