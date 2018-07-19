@@ -228,6 +228,7 @@ public class Listener extends ListenerAdapter {
     private void sendServerList(ArrayList<Server> serverList, MessageChannel channel, boolean sushi) {
         EmbedBuilder messageReply = new EmbedBuilder();
         messageReply.setTitle("Servers", "https://reflex.syncore.org/");
+        messageReply.setDescription("━━━━━━━━━━");
         messageReply.setColor(Color.RED);
         for (Server s : serverList) {
 
@@ -245,9 +246,11 @@ public class Listener extends ListenerAdapter {
                     playerField.append(p).append("\n");
                 }
             }
+            playerField.append("━━━━━━━━━━").append("\n");
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
+        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore","https://reflex.syncore.org/");
         channel.sendMessage(messageReply.build()).queue();
     }
 }
