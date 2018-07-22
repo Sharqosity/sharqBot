@@ -791,21 +791,27 @@ public class SharqCoinListener extends ListenerAdapter {
             return;
         }
 
+        //checks if promoter has promoted in the last 10 min
+        long minutesSinceLastPromote = ChronoUnit.MINUTES.between(LocalDateTime.parse(promotingUser.get("lastPromote").toString()), LocalDateTime.now());
+        if (minutesSinceLastPromote < 10L) {
+            String minutesLeft = "" + (10L - minutesSinceLastPromote);
+            channel.sendMessage("Please wait " + minutesLeft + " minutes before promoting again!").queue();
+            return;
+        }
+
+
+
 
         //looks for roles and PMs
         Guild messageGuild = message.getGuild();
         for (Member m : messageGuild.getMembers()) {
             //checks if intended pm target is not original promoter
             if (m.getUser().getId().equalsIgnoreCase(message.getAuthor().getId())) {
-                m.getUser().openPrivateChannel().queue((privateChannel -> {
-                    privateChannel.sendMessage(((double)PROMOTE_COST)/100 + "<:sharqcoin:413785618573819905> deducted to promote!").queue();
-                }));
+                m.getUser().openPrivateChannel().queue((privateChannel -> privateChannel.sendMessage(((double)PROMOTE_COST)/100 + "<:sharqcoin:413785618573819905> deducted to promote!").queue()));
             } else {
                 for (Role r : m.getRoles()) {
                     if (r.getName().equalsIgnoreCase(roleName)) {
-                        m.getUser().openPrivateChannel().queue((privateChannel) -> {
-                            privateChannel.sendMessage("Please add pickups in <#" + channelId + ">!").queue();
-                        });
+                        m.getUser().openPrivateChannel().queue((privateChannel) -> privateChannel.sendMessage("Please add pickups in <#" + channelId + ">!").queue());
                     }
                 }
             }
@@ -833,9 +839,7 @@ public class SharqCoinListener extends ListenerAdapter {
             jsonFile.flush();
             jsonFile.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
