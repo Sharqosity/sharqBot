@@ -331,7 +331,7 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
-        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every "+ UPDATE_INTERVAL + " minutes.","");
+        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every "+ UPDATE_INTERVAL + " minutes.","https://reflex.syncore.org/images/reflex.png");
         return messageReply.build();
 
 //        channel.sendMessage(messageReply.build()).queue();
