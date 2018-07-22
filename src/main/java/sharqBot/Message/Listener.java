@@ -1,10 +1,9 @@
 package sharqBot.Message;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.GuildController;
@@ -13,13 +12,41 @@ import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Listener extends ListenerAdapter {
+
+    private final int UPDATE_INTERVAL = 10;
+
+    public Listener(JDA api) {
+        Runnable updateLists = () -> {
+            org.json.simple.JSONArray messageList = JSONDude.getServerLists();
+            for (int i = 0; i < messageList.size(); i++) {
+                org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray)messageList.get(i);
+                int channelID = (int)channelAndMessageID.get(0);
+                int messageID = (int) channelAndMessageID.get(1);
+
+                Channel channel = api.getTextChannelById(channelID);
+                MessageBuilder messageBuilder = new MessageBuilder();
+                Message message = messageBuilder.append(serverListCommand()).build();
+                ((TextChannel) channel).editMessageById(messageID,message).queue();
+
+
+            }
+        };
+
+
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+        executorService.scheduleAtFixedRate(updateLists, UPDATE_INTERVAL, UPDATE_INTERVAL, TimeUnit.MINUTES);
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -32,9 +59,55 @@ public class Listener extends ListenerAdapter {
         String content = message.getRawContent();
         MessageChannel channel = event.getChannel();
 
+
         String[] command = content.split(" ", 4);
 
+
         if (event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) {
+
+
+            if (command[0].equalsIgnoreCase("!addlist")) {
+                boolean roleFound = false;
+                for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
+                    if (r.getName().equalsIgnoreCase("Moderators") || r.getName().equalsIgnoreCase("Sushi Administrators") || r.getName().equalsIgnoreCase("Admin")) {
+                        roleFound = true;
+                        break;
+                    }
+                }
+                if (!roleFound) {
+                    return;
+                }
+
+                Message initialMessage = new MessageBuilder().append(serverListCommand()).build();
+
+                channel.sendMessage(initialMessage).queue();
+
+                channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
+
+
+                org.json.simple.JSONArray messageList = JSONDude.getServerLists();
+
+                org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
+                channelAndMessageID.add(channel.getId());
+                channelAndMessageID.add(initialMessage.getId());
+
+                messageList.add(channelAndMessageID);
+
+                FileWriter jsonFile = null;
+                try {
+                    jsonFile = new FileWriter("./lists.json");
+                    jsonFile.write(messageList.toJSONString());
+                    jsonFile.flush();
+                    jsonFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+
+            }
+
+
 
             if (command[0].equalsIgnoreCase("!ping")) {
                 channel.sendMessage("fuck you").queue();
@@ -142,55 +215,63 @@ public class Listener extends ListenerAdapter {
                 }
 
             } else if (command[0].equalsIgnoreCase("!servers")/* || command[0].equalsIgnoreCase("!sushiservers")*/) {
-                boolean sushi = false;
+                channel.sendMessage(serverListCommand()).queue();
+
+
+            }
+        }
+    }
+
+
+    private String serverListCommand() {
+        boolean sushi = false;
 //                if (command[0].equalsIgnoreCase("!sushiservers")) {
 //                    sushi = true;
 //                }
 
-                ArrayList<Server> serverList = new ArrayList<>();
-                URL syncoreSite;
-                try {
-                    syncoreSite = new URL("https://reflex.syncore.org/api/servers");
-                } catch (MalformedURLException e) {
-                    channel.sendMessage("I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/").queue();
-                    e.printStackTrace();
-                    return;
+        ArrayList<Server> serverList = new ArrayList<>();
+        URL syncoreSite;
+        try {
+            syncoreSite = new URL("https://reflex.syncore.org/api/servers");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/";
+        }
+        BufferedReader in;
+        String inputLine;
+        try {
+            in = new BufferedReader(new InputStreamReader(syncoreSite.openStream()));
+            inputLine = in.readLine();
+        } catch (IOException e) {
+
+            e.printStackTrace();
+            return "I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/";
+        }
+        assert inputLine != null;
+        JSONObject obj = new JSONObject(inputLine);
+        JSONArray servers = obj.getJSONArray("servers");
+        for (int i = 0; i < servers.length(); i++) {
+            JSONObject server = servers.getJSONObject(i);
+            JSONObject info = server.getJSONObject("info");
+            if (info.getInt("players") > 0 && info.getInt("private") == 0) {
+
+                String version = info.getString("serverVersion");
+
+                String address = server.getString("address");
+                String serverName = info.getString("serverName");
+                String map = info.getString("map");
+                String gameTypeShort = info.getString("gameTypeShort");
+                int players = info.getInt("players");
+                int maxPlayers = info.getInt("maxPlayers");
+
+                JSONArray playerList = server.getJSONArray("players");
+                ArrayList<String> playerArray = new ArrayList<>();
+
+                for (int j = 0; j < playerList.length(); j++) {
+
+                    playerArray.add(playerList.getJSONObject(j).getString("name"));
+
                 }
-                BufferedReader in;
-                String inputLine;
-                try {
-                    in = new BufferedReader(new InputStreamReader(syncoreSite.openStream()));
-                    inputLine = in.readLine();
-                } catch (IOException e) {
-                    channel.sendMessage("I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/").queue();
-                    e.printStackTrace();
-                    return;
-                }
-                assert inputLine != null;
-                JSONObject obj = new JSONObject(inputLine);
-                JSONArray servers = obj.getJSONArray("servers");
-                for (int i = 0; i < servers.length(); i++) {
-                    JSONObject server = servers.getJSONObject(i);
-                    JSONObject info = server.getJSONObject("info");
-                    if (info.getInt("players") > 0 && info.getInt("private") == 0) {
-
-                        String version = info.getString("serverVersion");
-
-                        String address = server.getString("address");
-                        String serverName = info.getString("serverName");
-                        String map = info.getString("map");
-                        String gameTypeShort = info.getString("gameTypeShort");
-                        int players = info.getInt("players");
-                        int maxPlayers = info.getInt("maxPlayers");
-
-                        JSONArray playerList = server.getJSONArray("players");
-                        ArrayList<String> playerArray = new ArrayList<>();
-
-                        for (int j = 0; j < playerList.length(); j++) {
-
-                            playerArray.add(playerList.getJSONObject(j).getString("name"));
-
-                        }
 
 //                        if (sushi) {
 ////                            if ((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
@@ -203,29 +284,27 @@ public class Listener extends ListenerAdapter {
 ////                                serverList.add(serverObject);
 ////                            }
 ////                        }
-                        Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
-                        serverList.add(serverObject);
+                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
+                serverList.add(serverObject);
 
 
 
-                    }
-                }
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (serverList.isEmpty()) {
-                    channel.sendMessage("No public servers with players :frowning:").queue();
-                } else {
-                    sendServerList(serverList, channel, sushi);
-                }
             }
+        }
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (serverList.isEmpty()) {
+            return "No public servers with players :frowning:";
+        } else {
+            return buildServerList(serverList, sushi).build().toString();
         }
     }
 
-    private void sendServerList(ArrayList<Server> serverList, MessageChannel channel, boolean sushi) {
+    private EmbedBuilder buildServerList(ArrayList<Server> serverList, boolean sushi) {
         EmbedBuilder messageReply = new EmbedBuilder();
         messageReply.setTitle("Servers", "https://reflex.syncore.org/");
         messageReply.setDescription("━━━━━━━━━━");
@@ -250,7 +329,9 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
-        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore","https://reflex.syncore.org/");
-        channel.sendMessage(messageReply.build()).queue();
+        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This updates every "+ UPDATE_INTERVAL + " minutes","https://reflex.syncore.org/");
+        return messageReply;
+
+//        channel.sendMessage(messageReply.build()).queue();
     }
 }

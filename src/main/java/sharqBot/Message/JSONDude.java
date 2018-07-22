@@ -13,6 +13,21 @@ import java.time.LocalDateTime;
 
 public class JSONDude {
 
+    public static JSONArray getServerLists() {
+        JSONParser parser = new JSONParser();
+        JSONArray lists = new JSONArray();
+        try {
+            Object obj = parser.parse(new FileReader("./lists.json"));
+            lists = (JSONArray) obj;
+
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        return lists;
+    }
+
     public static JSONObject getUser(User targetUser) {
         JSONParser parser = new JSONParser();
         try {
