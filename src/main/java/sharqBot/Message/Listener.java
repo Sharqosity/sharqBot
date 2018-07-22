@@ -24,27 +24,31 @@ import java.util.concurrent.TimeUnit;
 
 public class Listener extends ListenerAdapter {
 
-    private final int UPDATE_INTERVAL = 10;
+    private final long UPDATE_INTERVAL = 1L;
 
     public Listener(JDA api) {
         Runnable updateLists = () -> {
+            System.out.println("updatelists ran!");
             org.json.simple.JSONArray messageList = JSONDude.getServerLists();
             for (int i = 0; i < messageList.size(); i++) {
                 org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray)messageList.get(i);
-                int channelID = (int)channelAndMessageID.get(0);
-                int messageID = (int) channelAndMessageID.get(1);
+                String channelID = channelAndMessageID.get(0).toString();
+                String messageID = channelAndMessageID.get(1).toString();
 
                 Channel channel = api.getTextChannelById(channelID);
-                MessageBuilder messageBuilder = new MessageBuilder();
-                Message message = messageBuilder.append(serverListCommand()).build();
+                System.out.println(channel.getName());
+                Message message = serverListCommand();
                 ((TextChannel) channel).editMessageById(messageID,message).queue();
+
+
 
             }
         };
 
-
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+//        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(updateLists, UPDATE_INTERVAL, UPDATE_INTERVAL, TimeUnit.MINUTES);
+
     }
 
     @Override
@@ -317,11 +321,11 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + "  `connect " + s.getAddress() + "`", false);
 
             } else {
-                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + ": steam://connect/" + s.getAddress(), false);
+                messageReply.addField("__(" + s.getPlayers() + "/" + s.getMaxPlayers() + ")__ " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + ": steam://connect/" + s.getAddress(), false);
 
 
                 //hyperlink format for when discord supports steam connect hyperlinks
-                //                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), "[" + s.getServerName() + "]" + "(steam://connect/" + s.getAddress() + ")", false);
+                //                messageReply.addField("__(" + s.getPlayers() + "/" + s.getMaxPlayers() + ")__ " + s.getGameTypeShort() + " on " + s.getMap(), "[" + s.getServerName() + "]" + "(steam://connect/" + s.getAddress() + ")", false);
             }
 
             StringBuilder playerField = new StringBuilder();
