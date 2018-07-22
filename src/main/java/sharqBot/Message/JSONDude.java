@@ -18,8 +18,8 @@ public class JSONDude {
         JSONArray lists = new JSONArray();
         try {
             Object obj = parser.parse(new FileReader("./lists.json"));
-            lists.add(obj);
-
+//            lists.add(obj);
+            lists = (JSONArray) obj;
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();

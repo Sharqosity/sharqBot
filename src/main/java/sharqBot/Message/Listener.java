@@ -317,14 +317,17 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + "  `connect " + s.getAddress() + "`", false);
 
             } else {
-                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), "[" + s.getServerName() + "]" + "(steam://connect/" + s.getAddress() + ")", false);
+                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + ": steam://connect/" + s.getAddress(), false);
 
+
+                //hyperlink format for when discord supports steam connect hyperlinks
+                //                messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), "[" + s.getServerName() + "]" + "(steam://connect/" + s.getAddress() + ")", false);
             }
 
             StringBuilder playerField = new StringBuilder();
             for (String p : s.getPlayerList()) {
                 if(!p.equals("")) {
-                    playerField.append(p).append("\n");
+                    playerField.append("`").append(p).append("`\n");
                 }
             }
             playerField.append("━━━━━━━━━━").append("\n");
