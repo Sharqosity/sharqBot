@@ -39,7 +39,6 @@ public class Listener extends ListenerAdapter {
                 Message message = messageBuilder.append(serverListCommand()).build();
                 ((TextChannel) channel).editMessageById(messageID,message).queue();
 
-
             }
         };
 
@@ -67,6 +66,8 @@ public class Listener extends ListenerAdapter {
 
 
             if (command[0].equalsIgnoreCase("!addlist")) {
+
+                //check for administrative role
                 boolean roleFound = false;
                 for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
                     if (r.getName().equalsIgnoreCase("Moderators") || r.getName().equalsIgnoreCase("Sushi Administrators") || r.getName().equalsIgnoreCase("Admin")) {
@@ -78,13 +79,14 @@ public class Listener extends ListenerAdapter {
                     return;
                 }
 
-                Message initialMessage = new MessageBuilder().append(serverListCommand()).build();
+                //build the initial server list
+                Message initialMessage = serverListCommand();
 
                 channel.sendMessage(initialMessage).queue();
 
                 channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
 
-
+                //get list of IDs and add to them
                 org.json.simple.JSONArray messageList = JSONDude.getServerLists();
 
                 org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
@@ -223,7 +225,7 @@ public class Listener extends ListenerAdapter {
     }
 
 
-    private String serverListCommand() {
+    private Message serverListCommand() {
         boolean sushi = false;
 //                if (command[0].equalsIgnoreCase("!sushiservers")) {
 //                    sushi = true;
@@ -235,7 +237,7 @@ public class Listener extends ListenerAdapter {
             syncoreSite = new URL("https://reflex.syncore.org/api/servers");
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            return "I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/";
+            return new MessageBuilder().append("I couldn't connect to syncore. Does it work for you? https://reflex.syncore.org/").build();
         }
         BufferedReader in;
         String inputLine;
@@ -245,7 +247,7 @@ public class Listener extends ListenerAdapter {
         } catch (IOException e) {
 
             e.printStackTrace();
-            return "I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/";
+            return new MessageBuilder().append("I encountered an issue reading from syncore. Does the site work for you? https://reflex.syncore.org/").build();
         }
         assert inputLine != null;
         JSONObject obj = new JSONObject(inputLine);
@@ -298,13 +300,13 @@ public class Listener extends ListenerAdapter {
         }
 
         if (serverList.isEmpty()) {
-            return "No public servers with players :frowning:";
+            return new MessageBuilder().append("No public servers with players :frowning:").build();
         } else {
-            return buildServerList(serverList, sushi).build().toString();
+            return new MessageBuilder().setEmbed(buildServerList(serverList, sushi)).build();
         }
     }
 
-    private EmbedBuilder buildServerList(ArrayList<Server> serverList, boolean sushi) {
+    private MessageEmbed buildServerList(ArrayList<Server> serverList, boolean sushi) {
         EmbedBuilder messageReply = new EmbedBuilder();
         messageReply.setTitle("Servers", "https://reflex.syncore.org/");
         messageReply.setDescription("━━━━━━━━━━");
@@ -330,7 +332,7 @@ public class Listener extends ListenerAdapter {
 
         }
         messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This updates every "+ UPDATE_INTERVAL + " minutes","https://reflex.syncore.org/");
-        return messageReply;
+        return messageReply.build();
 
 //        channel.sendMessage(messageReply.build()).queue();
     }
