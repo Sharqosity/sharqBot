@@ -58,7 +58,6 @@ public class Main {
         JDA api = jdaBuilder.buildBlocking();
 
         jdaBuilder.addEventListener(new Listener(api));
-        jdaBuilder.addEventListener(new SharqCoinListener(api));
 //        jdaBuilder.addEventListener(new PickupListener());
 
         System.out.println("Start time: "+ java.time.LocalDateTime.now());
