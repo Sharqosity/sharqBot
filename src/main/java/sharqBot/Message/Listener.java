@@ -21,14 +21,15 @@ import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class Listener extends ListenerAdapter {
 
-    private final long UPDATE_INTERVAL = 1L;
+    private final long UPDATE_INTERVAL = 5L;
 
     public Listener(JDA api) {
         Runnable updateLists = () -> {
-            System.out.println("updatelists ran!");
+
             org.json.simple.JSONArray messageList = JSONDude.getServerLists();
             for (int i = 0; i < messageList.size(); i++) {
                 org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray)messageList.get(i);
@@ -36,7 +37,7 @@ public class Listener extends ListenerAdapter {
                 String messageID = channelAndMessageID.get(1).toString();
 
                 Channel channel = api.getTextChannelById(channelID);
-                System.out.println(channel.getName());
+
                 Message message = serverListCommand();
                 ((TextChannel) channel).editMessageById(messageID,message).queue();
 
@@ -86,28 +87,41 @@ public class Listener extends ListenerAdapter {
                 //build the initial server list
                 Message initialMessage = serverListCommand();
 
-                channel.sendMessage(initialMessage).queue();
+
+
+
+                channel.sendMessage(initialMessage).queue(new Consumer<Message>() {
+                    @Override
+                    public void accept(Message t) {
+                        //get list of IDs and add to them
+                        org.json.simple.JSONArray messageList = JSONDude.getServerLists();
+
+                        org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
+                        channelAndMessageID.add(channel.getId());
+
+                        channelAndMessageID.add(t.getId());
+
+
+                        messageList.add(channelAndMessageID);
+
+                        FileWriter jsonFile = null;
+                        try {
+                            jsonFile = new FileWriter("./lists.json");
+                            jsonFile.write(messageList.toJSONString());
+                            jsonFile.flush();
+                            jsonFile.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
 
                 channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
 
-                //get list of IDs and add to them
-                org.json.simple.JSONArray messageList = JSONDude.getServerLists();
 
-                org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
-                channelAndMessageID.add(channel.getId());
-                channelAndMessageID.add(initialMessage.getId());
 
-                messageList.add(channelAndMessageID);
 
-                FileWriter jsonFile = null;
-                try {
-                    jsonFile = new FileWriter("./lists.json");
-                    jsonFile.write(messageList.toJSONString());
-                    jsonFile.flush();
-                    jsonFile.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
 
 
