@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import sharqBot.Message.Listener;
-import sharqBot.Message.SharqCoinListener;
 
 import javax.security.auth.login.LoginException;
 import java.io.BufferedReader;

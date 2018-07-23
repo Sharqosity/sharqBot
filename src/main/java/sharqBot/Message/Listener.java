@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import net.dv8tion.jda.core.managers.GuildController;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,13 +39,8 @@ public class Listener extends ListenerAdapter {
 
                 Message message = serverListCommand();
                 ((TextChannel) channel).editMessageById(messageID,message).queue();
-
-
-
             }
         };
-
-//        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(updateLists, UPDATE_INTERVAL, UPDATE_INTERVAL, TimeUnit.MINUTES);
 
@@ -63,12 +57,10 @@ public class Listener extends ListenerAdapter {
         String content = message.getRawContent();
         MessageChannel channel = event.getChannel();
 
-
         String[] command = content.split(" ", 4);
 
 
         if (event.isFromType(ChannelType.TEXT) || event.isFromType(ChannelType.PRIVATE)) {
-
 
             if (command[0].equalsIgnoreCase("!addlist")) {
 
@@ -88,8 +80,7 @@ public class Listener extends ListenerAdapter {
                 Message initialMessage = serverListCommand();
 
 
-
-
+                //store id of channel and message
                 channel.sendMessage(initialMessage).queue(new Consumer<Message>() {
                     @Override
                     public void accept(Message t) {
@@ -98,10 +89,7 @@ public class Listener extends ListenerAdapter {
 
                         org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
                         channelAndMessageID.add(channel.getId());
-
                         channelAndMessageID.add(t.getId());
-
-
                         messageList.add(channelAndMessageID);
 
                         FileWriter jsonFile = null;
@@ -119,129 +107,9 @@ public class Listener extends ListenerAdapter {
 
                 channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
 
-
-
-
-
-
-
-            }
-
-
-
-            if (command[0].equalsIgnoreCase("!ping")) {
-                channel.sendMessage("fuck you").queue();
-
-            } else if (command[0].equalsIgnoreCase("!help")) {
-
-                EmbedBuilder messageReply = new EmbedBuilder();
-                messageReply.setTitle("Message Commands");
-                messageReply.setDescription("");
-                messageReply.setColor(Color.decode("#3EB97E"));
-                messageReply.addField("!ping", "Checks if the bot is online", false);
-                messageReply.addField("!help", "sends help", false);
-                messageReply.addField("!servers", "Lists public Reflex servers with players", false);
-//                messageReply.addField("!sushiservers", "Lists public Sushi ruleset servers with players", false);
-                messageReply.addField("!cointoss <heads/tails>", "Flips a coin (not rigged)", false);
-                messageReply.addField("!notify <NA/EU>", "Gives you pickup role", false);
-                messageReply.addField("!removerole <NA/EU>", "Removes pickup role", false);
-//                messageReply.addField("","",true);
-                channel.sendMessage(messageReply.build()).queue();
-
-                EmbedBuilder sharqCoinReply = new EmbedBuilder();
-                sharqCoinReply.setTitle("SharqCoin Commands");
-                sharqCoinReply.setDescription("");
-                sharqCoinReply.setColor(Color.decode("#F5CA40"));
-                sharqCoinReply.addField("!faq", "Frequently asked questions about sharqcoin", false);
-                sharqCoinReply.addField("!wallet", "View your current sharqcoin balance", false);
-                sharqCoinReply.addField("!send <amount> @user <message>", "Send another user sharqcoin", false);
-                sharqCoinReply.addField("!top5", "forbes list of top billionaires", false);
-                channel.sendMessage(sharqCoinReply.build()).queue();
-
-
-                EmbedBuilder betReply = new EmbedBuilder();
-                betReply.setTitle("Betting Commands");
-                betReply.setColor(Color.decode("#6C0EF7"));
-                betReply.addField("PM the bot: !bet <amount> <player>", "Places a wager on a player who is part of an open bet", false);
-                betReply.addField("!openbets", "Lists current games open for betting", false);
-                betReply.addField("!closedbets", "Lists current in-progress games", false);
-                channel.sendMessage(betReply.build()).queue();
-
-//                EmbedBuilder pickupReply = new EmbedBuilder();
-//                pickupReply.setTitle("Pickup Commands");
-//                pickupReply.setDescription("|");
-//                pickupReply.setColor(Color.decode("#3EB97E"));
-//                pickupReply.addField("@SharqBot add <mode>", "Add yourself to pickup queue for specified mode", false);
-//                pickupReply.addField("@SharqBot remove <mode>", "Remove yourself from specified pickup queue", false);
-//                pickupReply.addField("@SharqBot who", "Displays status of current queues.", false);
-//                pickupReply.addField("@SharqBot start <mode>", "Starts pickup in case you don't want to wait for it to fill up", false);
-//                channel.sendMessage(pickupReply.build()).queue();
-
-            } else if (command[0].equalsIgnoreCase("!cointoss") && ((command[1].equalsIgnoreCase("heads")) || (command[1].equalsIgnoreCase("tails")))) {
-                if (event.isFromType(ChannelType.PRIVATE)) {
-                    return;
-                }
-                EmbedBuilder cointoss = new EmbedBuilder();
-                if (message.getAuthor().getId().equals("95641408530026496")) {
-                    if (command[1].equalsIgnoreCase("heads")) {
-                        cointoss.setTitle("Coin toss result is: heads!");
-
-                    } else {
-                        cointoss.setTitle("Coin toss result is: tails!");
-
-                    }
-                } else {
-                    if (command[1].equalsIgnoreCase("heads")) {
-                        cointoss.setTitle("Coin toss result is: tails!");
-                    } else {
-                        cointoss.setTitle("Coin toss result is: heads!");
-                    }
-                }
-                channel.sendMessage(cointoss.build()).queue();
-
-
-            } else if (command[0].equalsIgnoreCase("!notify")) {
-                if (event.isFromType(ChannelType.TEXT)) {
-                    return;
-                }
-                if (message.getGuild().getId().equals("407749422592819200")) {
-//                    Role NA = message.getGuild().getRolesByName("NA", true).get(0);
-                    Role NA = message.getGuild().getRoleById("411979598541225996");
-//                    Role EU = message.getGuild().getRolesByName("EU", true).get(0);
-                    Role EU = message.getGuild().getRoleById("408771458622291969");
-                    GuildController guildController = new GuildController(message.getGuild());
-
-                    if (command[1].equalsIgnoreCase("NA")) {
-                        guildController.addSingleRoleToMember(message.getMember(), NA).queue();
-                    } else if (command[1].equalsIgnoreCase("EU")) {
-                        guildController.addSingleRoleToMember(message.getMember(), EU).queue();
-                    }
-                }
-
-            } else if (command[0].equalsIgnoreCase("!removeRole")) {
-                if (event.isFromType(ChannelType.TEXT)) {
-                    return;
-                }
-                if (message.getGuild().getId().equals("407749422592819200")) {
-                    Role NA = message.getGuild().getRoleById("411979598541225996");
-                    Role EU = message.getGuild().getRoleById("408771458622291969");
-                    GuildController guildController = new GuildController(message.getGuild());
-
-                    if (command[1].equalsIgnoreCase("NA")) {
-                        guildController.removeSingleRoleFromMember(message.getMember(), NA).queue();
-                    } else if (command[1].equalsIgnoreCase("EU")) {
-                        guildController.removeSingleRoleFromMember(message.getMember(), EU).queue();
-                    }
-                }
-
-            } else if (command[0].equalsIgnoreCase("!servers")/* || command[0].equalsIgnoreCase("!sushiservers")*/) {
-                channel.sendMessage(serverListCommand()).queue();
-
-
             }
         }
     }
-
 
     private Message serverListCommand() {
         boolean sushi = false;
@@ -292,7 +160,6 @@ public class Listener extends ListenerAdapter {
                     playerArray.add(playerList.getJSONObject(j).getString("name"));
 
                 }
-
 //                        if (sushi) {
 ////                            if ((version.equals("1.1.2expplus")) || version.equals("1.1.4expplus")) {
 ////                                Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
@@ -306,8 +173,6 @@ public class Listener extends ListenerAdapter {
 ////                        }
                 Server serverObject = new Server(address, serverName, map, gameTypeShort, players, maxPlayers, playerArray);
                 serverList.add(serverObject);
-
-
 
             }
         }
@@ -336,8 +201,6 @@ public class Listener extends ListenerAdapter {
 
             } else {
                 messageReply.addField("__(" + s.getPlayers() + "/" + s.getMaxPlayers() + ")__ " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + ": steam://connect/" + s.getAddress(), false);
-
-
                 //hyperlink format for when discord supports steam connect hyperlinks
                 //                messageReply.addField("__(" + s.getPlayers() + "/" + s.getMaxPlayers() + ")__ " + s.getGameTypeShort() + " on " + s.getMap(), "[" + s.getServerName() + "]" + "(steam://connect/" + s.getAddress() + ")", false);
             }
@@ -353,8 +216,8 @@ public class Listener extends ListenerAdapter {
 
         }
         messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every "+ UPDATE_INTERVAL + " minutes.","https://reflex.syncore.org/images/reflex.png");
-        return messageReply.build();
 
+        return messageReply.build();
 //        channel.sendMessage(messageReply.build()).queue();
     }
 }
