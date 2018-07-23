@@ -38,7 +38,7 @@ public class Listener extends ListenerAdapter {
 
                 Channel channel = api.getTextChannelById(channelID);
 
-                Message message = serverListCommand();
+                Message message = serverListCommand(false);
                 ((TextChannel) channel).editMessageById(messageID,message).queue();
 
 
@@ -85,7 +85,7 @@ public class Listener extends ListenerAdapter {
                 }
 
                 //build the initial server list
-                Message initialMessage = serverListCommand();
+                Message initialMessage = serverListCommand(false);
 
 
 
@@ -235,7 +235,7 @@ public class Listener extends ListenerAdapter {
                 }
 
             } else if (command[0].equalsIgnoreCase("!servers")/* || command[0].equalsIgnoreCase("!sushiservers")*/) {
-                channel.sendMessage(serverListCommand()).queue();
+                channel.sendMessage(serverListCommand(true)).queue();
 
 
             }
@@ -243,7 +243,7 @@ public class Listener extends ListenerAdapter {
     }
 
 
-    private Message serverListCommand() {
+    private Message serverListCommand(boolean isFromManualCommand) {
         boolean sushi = false;
 //                if (command[0].equalsIgnoreCase("!sushiservers")) {
 //                    sushi = true;
@@ -320,11 +320,11 @@ public class Listener extends ListenerAdapter {
         if (serverList.isEmpty()) {
             return new MessageBuilder().append("No public servers with players :frowning:").build();
         } else {
-            return new MessageBuilder().setEmbed(buildServerList(serverList, sushi)).build();
+            return new MessageBuilder().setEmbed(buildServerList(serverList, sushi, isFromManualCommand)).build();
         }
     }
 
-    private MessageEmbed buildServerList(ArrayList<Server> serverList, boolean sushi) {
+    private MessageEmbed buildServerList(ArrayList<Server> serverList, boolean sushi, boolean isFromManualCommand) {
         EmbedBuilder messageReply = new EmbedBuilder();
         messageReply.setTitle("Servers", "https://reflex.syncore.org/");
         messageReply.setDescription("━━━━━━━━━━");
@@ -352,7 +352,13 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
-        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every "+ UPDATE_INTERVAL + " minutes.","https://reflex.syncore.org/images/reflex.png");
+        if(isFromManualCommand) {
+            messageReply.setFooter("Bot by Sharqosity. Server data from Syncore.","https://reflex.syncore.org/images/reflex.png");
+
+        } else {
+            messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every "+ UPDATE_INTERVAL + " minutes.","https://reflex.syncore.org/images/reflex.png");
+
+        }
         return messageReply.build();
 
 //        channel.sendMessage(messageReply.build()).queue();
