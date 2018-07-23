@@ -7,18 +7,7 @@ class Server {
     private String address, serverName, map, gameTypeShort;
     private int players, maxPlayers;
 
-
-
     private ArrayList<String> playerList;
-
-    Server(String address, String serverName, String map, String gameTypeShort, int players, int maxPlayers) {
-        this.address = address;
-        this.serverName = serverName;
-        this.map = map;
-        this.gameTypeShort = gameTypeShort;
-        this.players = players;
-        this.maxPlayers = maxPlayers;
-    }
 
     Server(String address, String serverName, String map, String gameTypeShort, int players, int maxPlayers, ArrayList<String> playerList) {
         this.address = address;
@@ -54,11 +43,8 @@ class Server {
         return maxPlayers;
     }
 
-    public ArrayList<String> getPlayerList() {
+    ArrayList<String> getPlayerList() {
         return playerList;
     }
 
-    public void setPlayerList(ArrayList<String> playerList) {
-        this.playerList = playerList;
-    }
 }
