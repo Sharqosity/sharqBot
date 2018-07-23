@@ -31,17 +31,20 @@ public class Listener extends ListenerAdapter {
         Runnable updateLists = () -> {
             //Get list of stored IDs from json file and loop through them
             org.json.simple.JSONArray messageList = JSONDude.getServerLists();
-            for (Object channelAndMessageIDJSON : messageList) {
-                //Each json array has IDs for messages and the channel they were sent in
-                //converts object to JSONArray
-                org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray) channelAndMessageIDJSON;
-                String channelID = channelAndMessageID.get(0).toString();
-                String messageID = channelAndMessageID.get(1).toString();
-                //Get actual channel object from ID
-                TextChannel channel = api.getTextChannelById(channelID);
-                //Get updated server lists message and edits the original message with it
+            if (messageList.size() > 0) {
+                //Get updated server lists message
                 Message message = serverListCommand();
-                channel.editMessageById(messageID, message).queue();
+                for (Object channelAndMessageIDJSON : messageList) {
+                    //Each json array has IDs for messages and the channel they were sent in
+                    //converts object to JSONArray
+                    org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray) channelAndMessageIDJSON;
+                    String channelID = channelAndMessageID.get(0).toString();
+                    String messageID = channelAndMessageID.get(1).toString();
+                    //Get actual channel object from ID
+                    TextChannel channel = api.getTextChannelById(channelID);
+                    //edits the original message
+                    channel.editMessageById(messageID, message).queue();
+                }
             }
         };
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
