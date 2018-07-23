@@ -31,18 +31,20 @@ public class Listener extends ListenerAdapter {
         Runnable updateLists = () -> {
 
             org.json.simple.JSONArray messageList = JSONDude.getServerLists();
-            for (int i = 0; i < messageList.size(); i++) {
-                org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray)messageList.get(i);
-                String channelID = channelAndMessageID.get(0).toString();
-                String messageID = channelAndMessageID.get(1).toString();
 
-                Channel channel = api.getTextChannelById(channelID);
-
+            if (messageList.size()>0) {
                 Message message = serverListCommand(false);
-                ((TextChannel) channel).editMessageById(messageID,message).queue();
+
+                for (int i = 0; i < messageList.size(); i++) {
+                    org.json.simple.JSONArray channelAndMessageID = (org.json.simple.JSONArray) messageList.get(i);
+                    String channelID = channelAndMessageID.get(0).toString();
+                    String messageID = channelAndMessageID.get(1).toString();
+
+                    Channel channel = api.getTextChannelById(channelID);
+                    ((TextChannel) channel).editMessageById(messageID, message).queue();
 
 
-
+                }
             }
         };
 
