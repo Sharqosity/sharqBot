@@ -113,17 +113,24 @@ public class Listener extends ListenerAdapter {
                 }
 
             } else if (command[1].equalsIgnoreCase("dictionary")) {
-                StringBuilder list = new StringBuilder();
+
                 File folder = new File("./src/muntDict");
                 File[] listOfFiles = folder.listFiles();
                 assert listOfFiles != null;
+
+//                StringBuilder list = new StringBuilder();
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+                embedBuilder.setTitle("Mount Text to Speech Dictionary");
+
                 for (File f : listOfFiles) {
                     if (f.isFile()) {
                         //-4 to remove the .mp3 file extension
-                        list.append(f.getName().substring(0, f.getName().length() - 4)).append("\n");
+//                        list.append(f.getName(), 0, f.getName().length() - 4).append("\n");
+                        embedBuilder.addField("",f.getName().substring(0, f.getName().length()-4), true);
                     }
                 }
-                channel.sendMessage(list.toString()).queue();
+//                channel.sendMessage(list.toString()).queue();
+                channel.sendMessage(embedBuilder.build()).queue();
 
             } else if (command[1].equalsIgnoreCase("files")) {
                 StringBuilder list = new StringBuilder();
@@ -133,7 +140,7 @@ public class Listener extends ListenerAdapter {
                 for (File f : listOfFiles) {
                     if (f.isFile()) {
                         //-4 to remove the .mp3 file extension
-                        list.append(f.getName().substring(0, f.getName().length() - 4)).append("\n");
+                        list.append(f.getName(), 0, f.getName().length() - 4).append("\n");
                     }
                 }
                 channel.sendMessage(list.toString()).queue();
