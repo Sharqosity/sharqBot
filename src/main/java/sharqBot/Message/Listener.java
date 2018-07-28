@@ -37,6 +37,13 @@ public class Listener extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
 
         String[] command = content.split(" ", 3);
+        
+        if (message.getGuild().getId().equals("100400971875651584")) {
+            int random = (int)(Math.random()*100);
+            if(random < 1) {
+                channel.sendMessage("yes carol was thic").queue();
+            }
+        }
 
         if (message.getGuild().getId().equals("100400971875651584")) {
             int random = (int)(Math.random()*100);
@@ -62,6 +69,7 @@ public class Listener extends ListenerAdapter {
                 messageReply.addField("@SharqBot sushiservers", "Lists public Sushi ruleset servers with players", false);
                 messageReply.addField("@SharqBot coinflip <heads/tails>", "Flips a coin (not rigged)", false);
                 messageReply.addField("@SharqBot tylerisbored", "For Tyler. wanna hop in?", false);
+                messageReply.addField("@SharqBot dotasquad", "alert the boys", false);
 //                messageReply.addField("","",true);
                 channel.sendMessage(messageReply.build()).queue();
 
@@ -73,6 +81,7 @@ public class Listener extends ListenerAdapter {
                 musicReply.addField("@SharqBot files", "Lists files available to use with !filename command", false);
                 musicReply.addField("@SharqBot play <link>", "Plays a song from youtube, overrides queue", false);
                 musicReply.addField("@SharqBot queue <link>", "Adds a youtube video to the queue", false);
+                musicReply.addField("@SharqBot fuck off","tells the bot to leave the voice channel",false);
                 musicReply.addField("!mts <type your sentence in words>", "Mount text to speech", false);
                 musicReply.addField("@SharqBot dictionary", "Lists MountTTS vocabulary", false);
                 musicReply.addField("@SharqBot mtts", "Enables/disables MountTTS. sensible people only", false);
@@ -130,7 +139,7 @@ public class Listener extends ListenerAdapter {
                 channel.sendMessage(list.toString()).queue();
             }
 
-            else if (command[1].equalsIgnoreCase("cointoss") && ((command[2].equalsIgnoreCase("heads")) || (command[2].equalsIgnoreCase("tails")))) {
+            else if (command[1].equalsIgnoreCase("coinflip") && ((command[2].equalsIgnoreCase("heads")) || (command[2].equalsIgnoreCase("tails")))) {
                 if (message.getAuthor().getId().equals("95641408530026496")) {
                     if (command[2].equalsIgnoreCase("heads")) {
                         channel.sendMessage("Coin toss result is: heads!").queue();
