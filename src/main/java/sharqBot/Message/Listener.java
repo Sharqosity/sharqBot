@@ -54,6 +54,10 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        //text channels only
+        if (!event.isFromType(ChannelType.TEXT)) {
+            return;
+        }
         //ignore other bot messages
         if (event.getAuthor().isBot()) {
             return;
@@ -64,48 +68,47 @@ public class Listener extends ListenerAdapter {
         MessageChannel channel = event.getChannel();
         //split user commands into separate strings
         String[] command = content.split(" ", 4);
-        if (event.isFromType(ChannelType.TEXT)) {
-            if (command[0].equalsIgnoreCase("!addlist")) {
-                //check for administrative role
-                boolean roleFound = false;
-                for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
-                    if (r.getName().equalsIgnoreCase("Moderators") || r.getName().equalsIgnoreCase("Sushi Administrators") || r.getName().equalsIgnoreCase("Admin")) {
-                        roleFound = true;
-                        break;
-                    }
+        if (command[0].equalsIgnoreCase("!addlist")) {
+            //check for administrative role
+            boolean roleFound = false;
+            for (Role r : message.getGuild().getMember(message.getAuthor()).getRoles()) {
+                if (r.getName().equalsIgnoreCase("Moderators") || r.getName().equalsIgnoreCase("Sushi Administrators") || r.getName().equalsIgnoreCase("Admin")) {
+                    roleFound = true;
+                    break;
                 }
-                if (!roleFound) { //stops if administrative role not found
-                    return;
-                }
-
-                //Build the initial server list
-                Message initialMessage = serverListCommand();
-
-                //Store id of channel and message
-                channel.sendMessage(initialMessage).queue(t -> { //message callback
-                    //get list of IDs from json file and add to them
-                    org.json.simple.JSONArray messageList = JSONDude.getServerLists();
-                    //new ID pair json list
-                    org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
-                    channelAndMessageID.add(channel.getId());
-                    channelAndMessageID.add(t.getId());
-                    messageList.add(channelAndMessageID);
-                    //commit to file
-                    FileWriter jsonFile = null;
-                    try {
-                        jsonFile = new FileWriter("./lists.json");
-                        jsonFile.write(messageList.toJSONString());
-                        jsonFile.flush();
-                        jsonFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-                //reminder message. todo: automatically pin the message
-                channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
-
             }
+            if (!roleFound) { //stops if administrative role not found
+                return;
+            }
+
+            //Build the initial server list
+            Message initialMessage = serverListCommand();
+
+            //Store id of channel and message
+            channel.sendMessage(initialMessage).queue(t -> { //message callback
+                //get list of IDs from json file and add to them
+                org.json.simple.JSONArray messageList = JSONDude.getServerLists();
+                //new ID pair json list
+                org.json.simple.JSONArray channelAndMessageID = new org.json.simple.JSONArray();
+                channelAndMessageID.add(channel.getId());
+                channelAndMessageID.add(t.getId());
+                messageList.add(channelAndMessageID);
+                //commit to file
+                FileWriter jsonFile = null;
+                try {
+                    jsonFile = new FileWriter("./lists.json");
+                    jsonFile.write(messageList.toJSONString());
+                    jsonFile.flush();
+                    jsonFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            //reminder message. todo: automatically pin the message
+            channel.sendMessage("Please pin the server list! It will update automatically every " + UPDATE_INTERVAL + " minutes.").queue();
+
         }
+
     }
 
     private Message serverListCommand() {
