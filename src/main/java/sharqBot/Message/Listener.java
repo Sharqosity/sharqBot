@@ -41,7 +41,13 @@ public class Listener extends ListenerAdapter {
         if (message.getGuild().getId().equals("100400971875651584")) {
             int random = (int)(Math.random()*100);
             if(random < 1) {
-                channel.sendMessage("yes carol was thic").queue();
+                random = (int) (Math.random()*100);
+                if(random < 1) {
+                    channel.sendMessage("yes, [fake girlfriend] was indeed thic").queue();
+                } else {
+                    channel.sendMessage("yes carol was thic").queue();
+
+                }
             }
         }
 
