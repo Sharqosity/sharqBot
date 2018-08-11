@@ -50,7 +50,7 @@ public class Listener extends ListenerAdapter {
         };
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         //schedules the task at every time interval
-        executorService.scheduleAtFixedRate(updateLists, UPDATE_INTERVAL, UPDATE_INTERVAL, TimeUnit.MINUTES);
+        executorService.scheduleAtFixedRate(updateLists, 0, UPDATE_INTERVAL, TimeUnit.MINUTES);
     }
 
     @Override
