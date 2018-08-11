@@ -45,6 +45,7 @@ public class Main {
 
         System.out.println("Start time: "+ java.time.LocalDateTime.now());
 
+
         jdaBuilder.useSharding(0, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
         Thread.sleep(5000);
         jdaBuilder.useSharding(1, 2).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);

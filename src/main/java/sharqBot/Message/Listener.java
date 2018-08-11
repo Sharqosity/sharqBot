@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -199,7 +200,11 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
-        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every " + UPDATE_INTERVAL + " minutes.", "https://reflex.syncore.org/images/reflex.png");
+        LocalTime localTime = LocalTime.now();
+        String timeString = localTime.getHour() + ":" + localTime.getMinute();
+
+//        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every " + UPDATE_INTERVAL + " minutes.", "https://reflex.syncore.org/images/reflex.png");
+        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list last updated on " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png");
 
         return messageReply.build();
     }
