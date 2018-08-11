@@ -61,8 +61,10 @@ public class PlayerControl extends ListenerAdapter {
         String[] command;
 
         command = content.split(" ");
-
-        if (command[0].equals("<@384172837218287616>") && (command[1].equalsIgnoreCase("leave")) || (command[1].equalsIgnoreCase("fuck")) && command[2].equalsIgnoreCase("off")) {
+        if(command.length >= 2 && command[0].equals("<@384172837218287616>") && (command[1].equalsIgnoreCase("leave"))) {
+            guild.getAudioManager().setSendingHandler(null);
+            guild.getAudioManager().closeAudioConnection();
+        } else if( command.length >= 3 && (command[1].equalsIgnoreCase("fuck")) && command[2].equalsIgnoreCase("off")) {
             guild.getAudioManager().setSendingHandler(null);
             guild.getAudioManager().closeAudioConnection();
         }
