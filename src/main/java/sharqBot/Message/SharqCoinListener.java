@@ -92,7 +92,8 @@ public class SharqCoinListener extends ListenerAdapter {
 
 //        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
-        executorService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
+//        executorService.scheduleAtFixedRate(backupSharqCoinDatabase, 1, 1, TimeUnit.HOURS);
+        executorService.scheduleAtFixedRate(backupSharqCoinDatabase, 0, 1, TimeUnit.DAYS);
 
 
         LocalDateTime nextSunday;
