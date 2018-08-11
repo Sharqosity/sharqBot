@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import net.dv8tion.jda.core.managers.GuildController;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,7 +34,7 @@ public class Listener extends ListenerAdapter {
             org.json.simple.JSONArray messageList = JSONDude.getServerLists();
             if (messageList.size() > 0) {
                 //Get updated server lists message
-                Message message = serverListCommand(false);
+                Message message = serverListCommand();
                 for (Object channelAndMessageIDJSON : messageList) {
                     //Each json array has IDs for messages and the channel they were sent in
                     //converts object to JSONArray
