@@ -171,7 +171,7 @@ public class Listener extends ListenerAdapter {
             LocalTime localTime = LocalTime.now();
             String timeString = localTime.getHour() + ":" + localTime.getMinute();
 
-            return new MessageBuilder().setEmbed(new EmbedBuilder().setDescription("No public servers with players :frowning:").setFooter("List last updated on " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png")
+            return new MessageBuilder().setEmbed(new EmbedBuilder().setDescription("No public servers with players :frowning:").setFooter("Last updated " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png")
 .build()).build();
         } else {//If any filtered server list isn't empty
             return new MessageBuilder().setEmbed(buildServerList(serverList)).build();
@@ -208,7 +208,7 @@ public class Listener extends ListenerAdapter {
         String timeString = localTime.getHour() + ":" + localTime.getMinute();
 
 //        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every " + UPDATE_INTERVAL + " minutes.", "https://reflex.syncore.org/images/reflex.png");
-        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list last updated on " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png");
+        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. Last updated " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png");
 
         return messageReply.build();
     }
