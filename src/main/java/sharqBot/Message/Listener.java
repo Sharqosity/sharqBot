@@ -168,7 +168,11 @@ public class Listener extends ListenerAdapter {
         }
         if (serverList.isEmpty()) {
 //            return new MessageBuilder().append("No public servers with players :frowning:").build();
-            return new MessageBuilder().setEmbed(new EmbedBuilder().setDescription("No public servers with players :frowning:").build()).build();
+            LocalTime localTime = LocalTime.now();
+            String timeString = localTime.getHour() + ":" + localTime.getMinute();
+
+            return new MessageBuilder().setEmbed(new EmbedBuilder().setDescription("No public servers with players :frowning:").setFooter("List last updated on " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png")
+.build()).build();
         } else {//If any filtered server list isn't empty
             return new MessageBuilder().setEmbed(buildServerList(serverList)).build();
         }
