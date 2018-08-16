@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalTime;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -300,9 +300,9 @@ public class Listener extends ListenerAdapter {
 
             if (!isFromManualCommand) {
                 //            return new MessageBuilder().append("No public servers with players :frowning:").build();
-                LocalTime localTime = LocalTime.now();
-                String timeString = localTime.getHour() + ":" + localTime.getMinute();
-
+//                LocalTime localTime = LocalTime.now();
+//                String timeString = localTime.getHour() + ":" + localTime.getMinute();
+                String timeString = new SimpleDateFormat("HH:mm").format(new java.util.Date());
                 return new MessageBuilder().setEmbed(new EmbedBuilder().setDescription("No public servers with players :frowning:").setFooter("Last updated " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png")
                         .build()).build();
             } else {
@@ -346,13 +346,14 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("Players: ", playerField.toString(), false);
 
         }
-        if(isFromManualCommand) {
-            messageReply.setFooter("Bot by Sharqosity. Server data from Syncore.","https://reflex.syncore.org/images/reflex.png");
+        if (isFromManualCommand) {
+            messageReply.setFooter("Bot by Sharqosity. Server data from Syncore.", "https://reflex.syncore.org/images/reflex.png");
         } else {
 
-            LocalTime localTime = LocalTime.now();
-            String timeString = localTime.getHour() + ":" + localTime.getMinute();
+//            LocalTime localTime = LocalTime.now();
+//            String timeString = localTime.getHour() + ":" + localTime.getMinute();
 
+            String timeString = new SimpleDateFormat("HH:mm").format(new java.util.Date());
 //        messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. This list updates every " + UPDATE_INTERVAL + " minutes.", "https://reflex.syncore.org/images/reflex.png");
             messageReply.setFooter("Bot by Sharqosity. Server data from Syncore. Last updated " + timeString + " EST.", "https://reflex.syncore.org/images/reflex.png");
         }
