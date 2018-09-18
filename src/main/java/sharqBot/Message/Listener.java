@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 public class Listener extends ListenerAdapter {
 
+    private final int EMBED_FIELD_LIMIT = 25;
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
@@ -124,19 +126,38 @@ public class Listener extends ListenerAdapter {
                 File[] listOfFiles = folder.listFiles();
                 assert listOfFiles != null;
 
-//                StringBuilder list = new StringBuilder();
-                EmbedBuilder embedBuilder = new EmbedBuilder();
-                embedBuilder.setTitle("Mount Text to Speech Dictionary");
+////                StringBuilder list = new StringBuilder();
+//                EmbedBuilder embedBuilder = new EmbedBuilder();
+//                embedBuilder.setTitle("Mount Text to Speech Dictionary");
+//
+//                for (File f : listOfFiles) {
+//                    if (f.isFile()) {
+//                        //-4 to remove the .mp3 file extension
+////                        list.append(f.getName(), 0, f.getName().length() - 4).append("\n");
+//                        embedBuilder.addField("",f.getName().substring(0, f.getName().length()-4), true);
+//                    }
+//                }
+////                channel.sendMessage(list.toString()).queue();
+//                channel.sendMessage(embedBuilder.build()).queue();
 
-                for (File f : listOfFiles) {
-                    if (f.isFile()) {
-                        //-4 to remove the .mp3 file extension
-//                        list.append(f.getName(), 0, f.getName().length() - 4).append("\n");
-                        embedBuilder.addField("",f.getName().substring(0, f.getName().length()-4), true);
+
+                //make embed field limit -1 so its 24 and the rows are fully filled. needs to be tested first I guess
+                int j = 0;
+                for (int i = 0; i < (int)Math.ceil((double)listOfFiles.length/(EMBED_FIELD_LIMIT)); i++) {
+                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                    if(i == 0) {
+                        embedBuilder.setTitle("Mount Text to Speech Dictionary");
                     }
+                    for (int k = 0; k < (EMBED_FIELD_LIMIT); k++) {
+                        if(j > listOfFiles.length-1) {
+                            break;
+                        }
+                        String fileName = listOfFiles[j].getName();
+                        embedBuilder.addField("",fileName.substring(0,fileName.length() - 4 ), true);
+                        j++;
+                    }
+                    channel.sendMessage(embedBuilder.build()).queue();
                 }
-//                channel.sendMessage(list.toString()).queue();
-                channel.sendMessage(embedBuilder.build()).queue();
 
             } else if (command[1].equalsIgnoreCase("files")) {
                 StringBuilder list = new StringBuilder();
