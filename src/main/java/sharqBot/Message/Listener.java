@@ -19,12 +19,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
+
+
 public class Listener extends ListenerAdapter {
+
 
     private final int EMBED_FIELD_LIMIT = 25;
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+
 
         if (!event.isFromType(ChannelType.TEXT)) {
             return;
@@ -53,12 +57,13 @@ public class Listener extends ListenerAdapter {
             }
         }
 
-        if (message.getGuild().getId().equals("100400971875651584")) {
-            int random = (int)(Math.random()*100);
-            if(random < 1) {
-                channel.sendMessage("yes carol was thic").queue();
-            }
-        }
+//        if (message.getGuild().getId().equals("100400971875651584")) {
+//            int random = (int)(Math.random()*100);
+//            if(random < 1) {
+//                channel.sendMessage("yes carol was thic").queue();
+//            }
+//        }
+
 
         if (command[0].equals("<@384172837218287616>")) {
 
@@ -101,7 +106,7 @@ public class Listener extends ListenerAdapter {
                 pickupReply.setColor(Color.decode("#3EB97E"));
                 pickupReply.addField("@SharqBot add <mode>", "Add yourself to pickup queue for specified mode", false);
                 pickupReply.addField("@SharqBot remove <mode>", "Remove yourself from specified pickup queue", false);
-                pickupReply.addField("@SharqBot who", "Displays status of current queues.", false);
+                pickupReply.addField("@SharqBot whomst", "Displays status of current queues.", false);
                 pickupReply.addField("@SharqBot start <mode>", "Starts pickup in case you don't want to wait for it to fill up", false);
                 channel.sendMessage(pickupReply.build()).queue();
 
@@ -143,21 +148,24 @@ public class Listener extends ListenerAdapter {
 
                 //make embed field limit -1 so its 24 and the rows are fully filled. needs to be tested first I guess
                 int j = 0;
-                for (int i = 0; i < (int)Math.ceil((double)listOfFiles.length/(EMBED_FIELD_LIMIT)); i++) {
+                for (int i = 0; i < (int)Math.ceil((double)listOfFiles.length/(EMBED_FIELD_LIMIT-1)); i++) {
                     EmbedBuilder embedBuilder = new EmbedBuilder();
                     if(i == 0) {
                         embedBuilder.setTitle("Mount Text to Speech Dictionary");
                     }
-                    for (int k = 0; k < (EMBED_FIELD_LIMIT); k++) {
+                    for (int k = 0; k < (EMBED_FIELD_LIMIT-1); k++) {
                         if(j > listOfFiles.length-1) {
                             break;
                         }
                         String fileName = listOfFiles[j].getName();
+                        //-4 to remove the .mp3 file extension
                         embedBuilder.addField("",fileName.substring(0,fileName.length() - 4 ), true);
                         j++;
                     }
                     channel.sendMessage(embedBuilder.build()).queue();
                 }
+
+                //i < (int)Math.ceil((double)emojiAmount/(MESSAGE_CHARACTER_LIMIT/EMOJI_CHARACTER_AMOUNT))
 
             } else if (command[1].equalsIgnoreCase("files")) {
                 StringBuilder list = new StringBuilder();
@@ -289,7 +297,7 @@ public class Listener extends ListenerAdapter {
             messageReply.addField("(" + s.getPlayers() + "/" + s.getMaxPlayers() + ") " + s.getGameTypeShort() + " on " + s.getMap(), s.getServerName() + " steam://connect/" + s.getAddress(), false);
             String playerField = "";
             for(String p : s.getPlayerList()) {
-                playerField += p + "\n";
+                playerField += "`" + p + "`\n";
             }
             messageReply.addField("Players: ",playerField,false);
 

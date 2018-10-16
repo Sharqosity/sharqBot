@@ -14,6 +14,7 @@ class GuildQueue {
         //TODO read from a file
         guildModes.add(new Mode("CSGO", 5));
         guildModes.add(new Mode("Wingman", 2));
+        guildModes.add(new Mode("Dota", 3));
 
     }
 
@@ -42,28 +43,29 @@ class GuildQueue {
         mode.getQueue().clear();
     }
 
-    void add(User user, String mode, MessageChannel channel) {
+    boolean add(User user, String mode, MessageChannel channel) {
 
         for (Mode m : guildModes) {
             if (mode.equalsIgnoreCase(m.getName())) {
                 if (m.getQueue().contains(user)) {
                     channel.sendMessage("You are already added!").queue();
+                    return false;
                 } else {
                     m.getQueue().add(user);
                     channel.sendMessage("Added! " + m.getName() + ": (" + m.getQueue().size() + "/" + m.getMaxPlayers() + ")").queue();
-
+                    if (m.getQueue().size() == m.getMaxPlayers()) {
+                        start(m,channel);
+                    }
+                    return true;
                 }
 
-                if (m.getQueue().size() == m.getMaxPlayers()) {
-                    start(m,channel);
-                }
-                return;
+
 
             }
 
         }
         channel.sendMessage("Invalid mode!").queue();
-
+        return false;
     }
 
     boolean remove(User user) {
@@ -113,7 +115,7 @@ class GuildQueue {
                 who.append("(").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append(") ");
                 String[] names = getNames(m);
                 for (int i = 0; i < names.length; i++) {
-                    who.append(names[i]);
+                    who.append("`"+names[i]+"`");
                     if (i != names.length - 1) {
                         who.append(", ");
                     }
@@ -121,10 +123,8 @@ class GuildQueue {
                 channel.sendMessage(who.toString()).queue();
                 return;
             }
-
-
-            channel.sendMessage("Invalid mode!").queue();
         }
+        channel.sendMessage("Invalid mode!").queue();
 
     }
 
@@ -137,7 +137,7 @@ class GuildQueue {
             who.append(": (").append(m.getQueue().size()).append("/").append(m.getMaxPlayers()).append(") ");
             String[] names = getNames(m);
             for (int i = 0; i < names.length; i++) {
-                who.append(names[i]);
+                who.append("`" + names[i] + "`");
                 if (i != names.length - 1) {
                     who.append(", ");
                 }

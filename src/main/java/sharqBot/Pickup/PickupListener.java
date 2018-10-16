@@ -70,7 +70,7 @@ public class PickupListener extends ListenerAdapter {
                 }
 
 
-            } else if (command[1].equalsIgnoreCase("who")) {
+            } else if (command[1].equalsIgnoreCase("whomst")) {
                 if (command.length < 3) {
                     guildQueue.who(channel);
                 } else {
@@ -83,6 +83,8 @@ public class PickupListener extends ListenerAdapter {
                 } else {
                     guildQueue.start(command[2],channel);
                 }
+            } else if (command[1].equalsIgnoreCase("promote")) {
+
             }
         }
     }
